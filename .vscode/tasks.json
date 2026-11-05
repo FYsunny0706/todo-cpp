@@ -1,0 +1,35 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "detail": "编译 src 下全部源文件 -> build/todo.exe",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-std=c++17", "-Wall", "-Wextra", "-g",
+                "-Iinclude",
+                "src/main.cpp", "src/Task.cpp", "src/TodoList.cpp",
+                "-o", "build/todo.exe"
+            ],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": ["$gcc"],
+            "group": { "kind": "build", "isDefault": true }
+        },
+        {
+            "label": "build-test",
+            "detail": "编译 test 下的测试程序 -> build/test_task.exe",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-std=c++17", "-Wall", "-Wextra", "-g",
+                "-Iinclude",
+                "test/test_task.cpp", "src/Task.cpp",
+                "-o", "build/test_task.exe"
+            ],
+            "options": { "cwd": "${workspaceFolder}" },
+            "problemMatcher": ["$gcc"],
+            "group": "test"
+        }
+    ]
+}
