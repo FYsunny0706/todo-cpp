@@ -25,6 +25,12 @@ class Task {
 	bool isCompleted() const;
 
 	std::string getDeadline() const;
+
+	void setTitle(const std::string& title);
+
+	void setDescription(const std::string& description);
+
+	void setDeadline(const std::string& deadline);
 };
 
 #endif

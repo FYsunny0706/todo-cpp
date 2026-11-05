@@ -29,3 +29,15 @@ bool Task::isCompleted() const {
 std::string Task::getDeadline() const {
 	return deadline;
 }
+
+void Task::setTitle(const std::string& title) {
+	this->title = title;
+}
+
+void Task::setDescription(const std::string& description) {
+	this->description = description;
+}
+
+void Task::setDeadline(const std::string& deadline) {
+	this->deadline = deadline;
+}
