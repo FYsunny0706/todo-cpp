@@ -15,6 +15,16 @@ class Task {
 	Task(int id, const std::string& title,
 		 const std::string& description,
 		 bool completed, const std::string& deadline);
+
+	int getId() const;
+
+	std::string getTitle() const;
+
+	std::string getDescription() const;
+
+	bool isCompleted() const;
+
+	std::string getDeadline() const;
 };
 
 #endif
