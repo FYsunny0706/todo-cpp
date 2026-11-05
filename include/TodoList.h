@@ -16,6 +16,8 @@ class TodoList {
 	void addTask(const std::string& title,
 				 const std::string& description,
 				 const std::string& deadline);
+
+	void showTasks() const;
 };
 
 #endif
