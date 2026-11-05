@@ -1,0 +1,10 @@
+# 编译文件
+*.exe
+*.o
+*.obj
+
+# VS Code 本地配置
+.vscode/
+
+# 程序运行时生成的数据
+data/tasks.txt
