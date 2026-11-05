@@ -41,3 +41,7 @@ void Task::setDescription(const std::string& description) {
 void Task::setDeadline(const std::string& deadline) {
 	this->deadline = deadline;
 }
+
+void Task::markCompleted() {
+    completed = true;
+}

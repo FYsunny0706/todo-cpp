@@ -31,6 +31,8 @@ class Task {
 	void setDescription(const std::string& description);
 
 	void setDeadline(const std::string& deadline);
+
+	void markCompleted();
 };
 
 #endif
