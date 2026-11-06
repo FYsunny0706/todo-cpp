@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 
 namespace {
 
@@ -128,4 +129,66 @@ bool TodoList::saveToFile(const std::string& filename) const {
 
 		if (!file) return false;
 	}
+
+	return true;
+}
+
+bool TodoList::loadFromFile(const std::string& filename) {
+	std::ifstream file(filename);
+
+	if (!file.is_open()) return false;
+
+	std::vector<Task> loadedTasks;
+	std::string line;
+	int maxId = 0;
+
+	while (std::getline(file, line)) {
+		std::stringstream ss(line);
+
+		std::string idStr;
+		std::string title;
+		std::string description;
+		std::string completedStr;
+		std::string deadline;
+
+		if (!std::getline(ss, idStr, '|') ||
+			!std::getline(ss, title, '|') ||
+			!std::getline(ss, description, '|') ||
+			!std::getline(ss, completedStr, '|') ||
+			!std::getline(ss, deadline)) {
+			return false;
+		}
+
+		int id;
+		try {
+			std::size_t pos = 0;
+			id = std::stoi(idStr, &pos);
+
+			if (pos != idStr.size() || id <= 0) return false;
+		} catch (...) {
+			return false;
+		}
+
+		if (completedStr != "0" && completedStr != "1") return false;
+
+		if (!isValidDate(deadline)) return false;
+
+		Task task(
+			id,
+			title,
+			description,
+			completedStr == "1",
+			deadline);
+
+		loadedTasks.push_back(task);
+
+		if (id > maxId) maxId = id;
+	}
+
+	if (file.bad()) return false;
+
+	tasks = loadedTasks;
+	nextId = maxId + 1;
+
+	return true;
 }

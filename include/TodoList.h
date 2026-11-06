@@ -32,6 +32,8 @@ class TodoList {
 	void clearCompleted();
 
 	bool saveToFile(const std::string& filename) const;
+
+	bool loadFromFile(const std::string& filename);
 };
 
 #endif
