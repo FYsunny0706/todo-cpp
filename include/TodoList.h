@@ -20,6 +20,8 @@ class TodoList {
 	void showTasks() const;
 
 	bool completeTask(int id);
+
+	bool deleteTask(int id);
 };
 
 #endif

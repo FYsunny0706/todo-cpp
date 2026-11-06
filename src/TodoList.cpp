@@ -52,3 +52,14 @@ bool TodoList::completeTask(int id){
 
 	return false;
 }
+
+bool TodoList::deleteTask(int id){
+	for(auto it =tasks.begin();it!=tasks.end();it++){
+		if(it -> getId() ==id){
+			tasks.erase(it);
+			return true;
+		}
+	}
+
+	return false;
+}
