@@ -13,7 +13,7 @@ class TodoList {
    public:
 	TodoList();
 
-	void addTask(const std::string& title,
+	bool addTask(const std::string& title,
 				 const std::string& description,
 				 const std::string& deadline);
 
