@@ -18,6 +18,8 @@ class TodoList {
 				 const std::string& deadline);
 
 	void showTasks() const;
+
+	bool completeTask(int id);
 };
 
 #endif

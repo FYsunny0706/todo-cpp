@@ -41,3 +41,14 @@ void TodoList::showTasks() const {
 
 	std::cout << "------------------------" << std::endl;
 }
+
+bool TodoList::completeTask(int id){
+	for(Task& task:tasks){
+		if(task.getId()==id){
+			task.markCompleted();
+			return true;
+		}
+	}
+
+	return false;
+}
