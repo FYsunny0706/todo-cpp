@@ -42,9 +42,9 @@ void TodoList::showTasks() const {
 	std::cout << "------------------------" << std::endl;
 }
 
-bool TodoList::completeTask(int id){
-	for(Task& task:tasks){
-		if(task.getId()==id){
+bool TodoList::completeTask(int id) {
+	for (Task& task : tasks) {
+		if (task.getId() == id) {
 			task.markCompleted();
 			return true;
 		}
@@ -53,9 +53,9 @@ bool TodoList::completeTask(int id){
 	return false;
 }
 
-bool TodoList::deleteTask(int id){
-	for(auto it =tasks.begin();it!=tasks.end();it++){
-		if(it -> getId() ==id){
+bool TodoList::deleteTask(int id) {
+	for (auto it = tasks.begin(); it != tasks.end(); it++) {
+		if (it->getId() == id) {
 			tasks.erase(it);
 			return true;
 		}
