@@ -26,6 +26,8 @@ class TodoList {
 	bool updateDeadline(int id,const std::string& deadline);
 
 	void sortByDeadline();
+
+	void completeAll();
 };
 
 #endif

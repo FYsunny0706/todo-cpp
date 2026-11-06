@@ -96,3 +96,9 @@ bool TodoList::updateDeadline(int id, const std::string& deadline) {
 void TodoList::sortByDeadline() {
 	std::stable_sort(tasks.begin(), tasks.end(), deadlineLess);
 }
+
+void TodoList::completeAll() {
+	for (Task& task : tasks) {
+		task.markCompleted();
+	}
+}
