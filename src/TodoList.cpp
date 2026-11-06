@@ -102,3 +102,13 @@ void TodoList::completeAll() {
 		task.markCompleted();
 	}
 }
+
+void TodoList::clearCompleted() {
+	auto it = tasks.begin();
+	while (it != tasks.end()) {
+		if (it->isCompleted())
+			it = tasks.erase(it);
+		else
+			it++;
+	}
+}

@@ -28,6 +28,8 @@ class TodoList {
 	void sortByDeadline();
 
 	void completeAll();
+
+	void clearCompleted();
 };
 
 #endif
