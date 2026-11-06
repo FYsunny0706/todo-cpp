@@ -1,4 +1,5 @@
 #include "TodoList.h"
+#include "DateUtils.h"
 #include <iostream>
 
 TodoList::TodoList()
@@ -57,6 +58,19 @@ bool TodoList::deleteTask(int id) {
 	for (auto it = tasks.begin(); it != tasks.end(); it++) {
 		if (it->getId() == id) {
 			tasks.erase(it);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool TodoList::updateDeadline(int id,const std::string& deadline){
+	if(!isValidDate(deadline)) return false;
+
+	for(Task& task : tasks){
+		if(task.getId()==id){
+			task.setDeadline(deadline);
 			return true;
 		}
 	}
