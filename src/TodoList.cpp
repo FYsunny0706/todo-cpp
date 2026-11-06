@@ -2,7 +2,9 @@
 #include "DateUtils.h"
 #include <iostream>
 #include <algorithm>
+#include <cstdio>
 #include <fstream>
+#include <set>
 #include <sstream>
 
 namespace {
@@ -17,6 +19,69 @@ bool deadlineLess(const Task& a, const Task& b) {
 
 	return deadlineA < deadlineB;
 }
+
+// ---------- 文件字段转义 ----------
+// 存盘格式：id|title|description|completed|deadline
+// 字段内的 \ | 换行 用反斜杠转义，避免内容破坏分隔符。
+
+std::string escapeField(const std::string& s) {
+	std::string out;
+	out.reserve(s.size() + 8);
+	for (char c : s) {
+		switch (c) {
+			case '\\': out += "\\\\"; break;
+			case '|':  out += "\\|";  break;
+			case '\n': out += "\\n";  break;
+			case '\r': out += "\\r";  break;
+			default:   out += c;      break;
+		}
+	}
+	return out;
+}
+
+bool unescapeField(const std::string& s, std::string& out) {
+	out.clear();
+	out.reserve(s.size());
+	for (std::size_t i = 0; i < s.size(); ++i) {
+		if (s[i] != '\\') {
+			out += s[i];
+			continue;
+		}
+		if (i + 1 >= s.size()) return false;
+		switch (s[++i]) {
+			case '\\': out += '\\'; break;
+			case '|':  out += '|';  break;
+			case 'n':  out += '\n'; break;
+			case 'r':  out += '\r'; break;
+			default:   return false;
+		}
+	}
+	return true;
+}
+
+// 按「未被转义的 |」切分，保留转义序列，交给 unescapeField 还原。
+bool splitLine(const std::string& line, std::vector<std::string>& fields) {
+	fields.clear();
+	std::string current;
+	for (std::size_t i = 0; i < line.size(); ++i) {
+		char c = line[i];
+		if (c == '\\') {
+			if (i + 1 >= line.size()) return false;
+			current += c;
+			current += line[++i];
+			continue;
+		}
+		if (c == '|') {
+			fields.push_back(current);
+			current.clear();
+			continue;
+		}
+		current += c;
+	}
+	fields.push_back(current);
+	return fields.size() == 5;
+}
+
 }  // namespace
 
 TodoList::TodoList()
@@ -116,18 +181,34 @@ void TodoList::clearCompleted() {
 }
 
 bool TodoList::saveToFile(const std::string& filename) const {
-	std::ofstream file(filename);
+	const std::string tempName = filename + ".tmp";
 
-	if (!file.is_open()) return false;
+	{
+		std::ofstream file(tempName);
 
-	for (const Task& task : tasks) {
-		file << task.getId() << '|'
-			 << task.getTitle() << '|'
-			 << task.getDescription() << '|'
-			 << (task.isCompleted() ? 1 : 0) << '|'
-			 << task.getDeadline() << '\n';
+		if (!file.is_open()) return false;
+
+		for (const Task& task : tasks) {
+			file << task.getId() << '|'
+				 << escapeField(task.getTitle()) << '|'
+				 << escapeField(task.getDescription()) << '|'
+				 << (task.isCompleted() ? 1 : 0) << '|'
+				 << escapeField(task.getDeadline()) << '\n';
+
+			if (!file) return false;
+		}
+
+		file.flush();
 
 		if (!file) return false;
+	}
+
+	// Windows 下 std::rename 不能覆盖已有文件，先删旧的再改名。
+	std::remove(filename.c_str());
+
+	if (std::rename(tempName.c_str(), filename.c_str()) != 0) {
+		std::remove(tempName.c_str());
+		return false;
 	}
 
 	return true;
@@ -140,10 +221,17 @@ bool TodoList::loadFromFile(const std::string& filename) {
 
 	std::vector<Task> loadedTasks;
 	std::string line;
+	std::set<int> seenIds;
 	int maxId = 0;
 
 	while (std::getline(file, line)) {
-		std::stringstream ss(line);
+		if (!line.empty() && line.back() == '\r') line.pop_back();
+
+		if (line.empty()) continue;
+
+		std::vector<std::string> fields;
+
+		if (!splitLine(line, fields)) return false;
 
 		std::string idStr;
 		std::string title;
@@ -151,13 +239,11 @@ bool TodoList::loadFromFile(const std::string& filename) {
 		std::string completedStr;
 		std::string deadline;
 
-		if (!std::getline(ss, idStr, '|') ||
-			!std::getline(ss, title, '|') ||
-			!std::getline(ss, description, '|') ||
-			!std::getline(ss, completedStr, '|') ||
-			!std::getline(ss, deadline)) {
-			return false;
-		}
+		if (!unescapeField(fields[0], idStr)) return false;
+		if (!unescapeField(fields[1], title)) return false;
+		if (!unescapeField(fields[2], description)) return false;
+		if (!unescapeField(fields[3], completedStr)) return false;
+		if (!unescapeField(fields[4], deadline)) return false;
 
 		int id;
 		try {
@@ -171,14 +257,13 @@ bool TodoList::loadFromFile(const std::string& filename) {
 
 		if (completedStr != "0" && completedStr != "1") return false;
 
+		if (title.empty()) return false;
+
+		if (!seenIds.insert(id).second) return false;
+
 		if (!isValidDate(deadline)) return false;
 
-		Task task(
-			id,
-			title,
-			description,
-			completedStr == "1",
-			deadline);
+		Task task(id, title, description, completedStr == "1", deadline);
 
 		loadedTasks.push_back(task);
 
