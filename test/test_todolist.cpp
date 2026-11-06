@@ -4,46 +4,40 @@
 int main() {
     TodoList todoList;
 
-    std::cout << "========== 测试一：空列表 ==========" << std::endl;
+    // 添加测试任务
+    todoList.addTask("任务A", "测试A", "2026-11-10");
+    todoList.addTask("任务B", "测试B", "");
+    todoList.addTask("任务C", "测试C", "2026-11-06");
+    todoList.addTask("任务D", "测试D", "2026-11-06");
+    todoList.addTask("任务E", "测试E", "");
+
+    std::cout << "========== 排序前 ==========" << std::endl;
     todoList.showTasks();
 
-    std::cout << "\n========== 测试二：添加任务 ==========" << std::endl;
+    // 测试排序
+    todoList.sortByDeadline();
 
-    todoList.addTask("学习C++", "完成Todo-Cpp项目", "2026-11-06");
-    todoList.addTask("学习高数", "复习微分学", "2026-11-07");
-    todoList.addTask("学习Python", "学习Pandas", "2026-11-08");
-
+    std::cout << "\n========== 排序后 ==========" << std::endl;
     todoList.showTasks();
 
-    std::cout << "\n========== 测试三：标记完成 ==========" << std::endl;
+    // 测试排序后标记完成
+    std::cout << "\n========== 测试排序后标记完成 ==========" << std::endl;
 
     if (todoList.completeTask(1)) {
         std::cout << "任务1标记成功。" << std::endl;
-    } else {
-        std::cout << "任务1标记失败。" << std::endl;
     }
 
-    if (!todoList.completeTask(100)) {
-        std::cout << "不存在的任务处理正确。" << std::endl;
+    // 测试排序后删除任务
+    std::cout << "\n========== 测试排序后删除 ==========" << std::endl;
+
+    if (todoList.deleteTask(3)) {
+        std::cout << "任务3删除成功。" << std::endl;
     }
 
-    todoList.showTasks();
+    // 测试排序后继续添加
+    std::cout << "\n========== 测试排序后继续添加 ==========" << std::endl;
 
-    std::cout << "\n========== 测试四：删除任务 ==========" << std::endl;
-
-    if (todoList.deleteTask(2)) {
-        std::cout << "任务2删除成功。" << std::endl;
-    }
-
-    if (!todoList.deleteTask(100)) {
-        std::cout << "不存在的任务删除处理正确。" << std::endl;
-    }
-
-    todoList.showTasks();
-
-    std::cout << "\n========== 测试五：删除后继续添加 ==========" << std::endl;
-
-    todoList.addTask("学习数据结构", "复习vector", "2026-11-09");
+    todoList.addTask("任务F", "测试F", "2026-11-08");
 
     todoList.showTasks();
 
