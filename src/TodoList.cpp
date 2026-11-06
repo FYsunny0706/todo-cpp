@@ -2,6 +2,7 @@
 #include "DateUtils.h"
 #include <iostream>
 #include <algorithm>
+#include <fstream>
 
 namespace {
 
@@ -110,5 +111,21 @@ void TodoList::clearCompleted() {
 			it = tasks.erase(it);
 		else
 			it++;
+	}
+}
+
+bool TodoList::saveToFile(const std::string& filename) const {
+	std::ofstream file(filename);
+
+	if (!file.is_open()) return false;
+
+	for (const Task& task : tasks) {
+		file << task.getId() << '|'
+			 << task.getTitle() << '|'
+			 << task.getDescription() << '|'
+			 << (task.isCompleted() ? 1 : 0) << '|'
+			 << task.getDeadline() << '\n';
+
+		if (!file) return false;
 	}
 }

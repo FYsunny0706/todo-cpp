@@ -30,6 +30,8 @@ class TodoList {
 	void completeAll();
 
 	void clearCompleted();
+
+	bool saveToFile(const std::string& filename) const;
 };
 
 #endif
