@@ -1,6 +1,21 @@
 #include "TodoList.h"
 #include "DateUtils.h"
 #include <iostream>
+#include <algorithm>
+
+namespace {
+
+bool deadlineLess(const Task& a, const Task& b) {
+	const std::string& deadlineA = a.getDeadline();
+	const std::string& deadlineB = b.getDeadline();
+
+	if (deadlineA.empty()) return false;
+
+	if (deadlineB.empty()) return true;
+
+	return deadlineA < deadlineB;
+}
+}  // namespace
 
 TodoList::TodoList()
 	: nextId(1) {
@@ -65,15 +80,19 @@ bool TodoList::deleteTask(int id) {
 	return false;
 }
 
-bool TodoList::updateDeadline(int id,const std::string& deadline){
-	if(!isValidDate(deadline)) return false;
+bool TodoList::updateDeadline(int id, const std::string& deadline) {
+	if (!isValidDate(deadline)) return false;
 
-	for(Task& task : tasks){
-		if(task.getId()==id){
+	for (Task& task : tasks) {
+		if (task.getId() == id) {
 			task.setDeadline(deadline);
 			return true;
 		}
 	}
 
 	return false;
+}
+
+void TodoList::sortByDeadline() {
+	std::stable_sort(tasks.begin(), tasks.end(), deadlineLess);
 }
