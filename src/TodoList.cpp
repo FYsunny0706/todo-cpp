@@ -2,10 +2,11 @@
 #include "DateUtils.h"
 #include <iostream>
 #include <algorithm>
-#include <cstdio>
+#include <filesystem>
 #include <fstream>
 #include <set>
 #include <sstream>
+#include <system_error>
 
 namespace {
 //----------自定义排序函数-----------
@@ -238,10 +239,12 @@ bool TodoList::saveToFile(const std::string& filename) const {
 	}
 
 	// 用临时文件写入，成功后再替换原文件
-	std::remove(filename.c_str());
+	std::error_code error;
+	std::filesystem::rename(tempName, filename, error);
 
-	if (std::rename(tempName.c_str(), filename.c_str()) != 0) {
-		std::remove(tempName.c_str());
+	if (error) {
+		std::error_code ignored;
+		std::filesystem::remove(tempName, ignored);
 		return false;
 	}
 
@@ -259,7 +262,8 @@ bool TodoList::loadFromFile(const std::string& filename) {
 	int maxId = 0;
 
 	while (std::getline(file, line)) {
-		if (!line.empty() && line.back() == '\r') line.pop_back();
+		while (!line.empty() && (line.back() == ' ' || line.back() == '\t' || line.back() == '\r'))
+			line.pop_back();
 
 		if (line.empty()) continue;
 
