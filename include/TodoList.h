@@ -23,6 +23,8 @@ class TodoList {
 
 	bool completeTask(int id);
 
+	bool uncompleteTask(int id);
+
 	bool deleteTask(int id);
 
 	bool updateDeadline(int id, const std::string& deadline);

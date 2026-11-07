@@ -46,3 +46,7 @@ void Task::setDeadline(const std::string& deadline) {
 void Task::markCompleted() {
 	completed = true;
 }
+
+void Task::markUncompleted() {
+	completed = false;
+}

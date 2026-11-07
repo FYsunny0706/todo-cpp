@@ -35,6 +35,9 @@ class Task {
 
 	// 标记为已完成
 	void markCompleted();
+
+	// 标记为未完成
+	void markUncompleted();
 };
 
 #endif

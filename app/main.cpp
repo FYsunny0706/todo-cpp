@@ -28,6 +28,7 @@ void printMenu() {
 	std::cout << "  7. 全部标记完成\n";
 	std::cout << "  8. 清空已完成\n";
 	std::cout << "  9. 立即保存\n";
+	std::cout << " 10. 取消标记\n";
 	std::cout << "  0. 退出\n";
 	std::cout << "请选择: ";
 }
@@ -96,6 +97,20 @@ void completeTaskFlow(TodoList& list) {
 	}
 
 	std::cout << (list.completeTask(id) ? "已标记完成。\n" : "没有这个 ID。\n");
+}
+
+// 取消标记
+void uncompleteTaskFlow(TodoList& list) {
+	std::cout << "要取消完成标记的 ID: ";
+
+	int id = 0;
+
+	if (!readInt(id)) {
+		std::cout << "请输入数字。\n";
+		return;
+	}
+
+	std::cout << (list.uncompleteTask(id) ? "已取消完成标记。\n" : "没有这个 ID。\n");
 }
 
 // 删除任务
@@ -174,7 +189,7 @@ int main() {
 				break;
 			}
 
-			std::cout << "请输入 0-9 的数字。\n";
+			std::cout << "请输入 0-10 的数字。\n";
 			continue;
 		}
 
@@ -227,6 +242,11 @@ int main() {
 					std::cout << "已保存。\n";
 					dirty = false;
 				}
+				break;
+
+			case 10:
+				uncompleteTaskFlow(list);
+				dirty = true;
 				break;
 
 			case 0:

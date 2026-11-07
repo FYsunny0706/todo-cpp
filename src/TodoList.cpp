@@ -166,6 +166,18 @@ bool TodoList::completeTask(int id) {
 	return false;
 }
 
+// 按 ID 取消完成，找不到返回 false
+bool TodoList::uncompleteTask(int id) {
+	for (Task& task : tasks) {
+		if (task.getId() == id) {
+			task.markUncompleted();
+			return true;
+		}
+	}
+
+	return false;
+}
+
 // 按 ID 删除任务，找不到返回 false
 bool TodoList::deleteTask(int id) {
 	for (auto it = tasks.begin(); it != tasks.end(); it++) {
