@@ -289,11 +289,12 @@ bool TodoList::loadFromFile(const std::string& filename) {
 			return false;
 		}
 
+		if (seenIds.count(id) > 0) return false;
+		seenIds.insert(id);
+
 		if (completedStr != "0" && completedStr != "1") return false;
 
 		if (title.empty()) return false;
-
-		if (!seenIds.insert(id).second) return false;
 
 		if (!isValidDate(deadline)) return false;
 
