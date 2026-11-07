@@ -1,5 +1,6 @@
 #include "DateUtils.h"
 
+// 校验日期是否为合法的 YYYY-MM-DD，空字符串视为有效
 bool isValidDate(const std::string& date) {
 	if (date.empty()) return true;
 
@@ -21,6 +22,7 @@ bool isValidDate(const std::string& date) {
 
 	int daysInMonth[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
+	// 判断是否闰年
 	bool isLeapYear = (year % 400 == 0) || (year % 4 == 0 && year % 100 != 0);
 
 	if (isLeapYear) daysInMonth[1] = 29;

@@ -1,5 +1,6 @@
 #include "Task.h"
 
+// 构造函数：初始化全部成员
 Task::Task(int id, const std::string& title,
 		   const std::string& description,
 		   bool completed, const std::string& deadline)
@@ -43,5 +44,5 @@ void Task::setDeadline(const std::string& deadline) {
 }
 
 void Task::markCompleted() {
-    completed = true;
+	completed = true;
 }

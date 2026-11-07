@@ -5,9 +5,11 @@
 #include <string>
 #include "Task.h"
 
+// 待办事项集合：增删改查、排序与持久化
 class TodoList {
    private:
 	std::vector<Task> tasks;
+	// 下一个可用的任务编号
 	int nextId;
 
    public:
@@ -23,7 +25,7 @@ class TodoList {
 
 	bool deleteTask(int id);
 
-	bool updateDeadline(int id,const std::string& deadline);
+	bool updateDeadline(int id, const std::string& deadline);
 
 	void sortByDeadline();
 
@@ -31,8 +33,10 @@ class TodoList {
 
 	void clearCompleted();
 
+	// 把所有任务写入文件，成功返回 true
 	bool saveToFile(const std::string& filename) const;
 
+	// 从文件读入并替换当前列表，成功返回 true
 	bool loadFromFile(const std::string& filename);
 };
 

@@ -3,6 +3,7 @@
 
 #include <string>
 
+// 待办事项：纯数据模型
 class Task {
    private:
 	int id;
@@ -32,6 +33,7 @@ class Task {
 
 	void setDeadline(const std::string& deadline);
 
+	// 标记为已完成
 	void markCompleted();
 };
 

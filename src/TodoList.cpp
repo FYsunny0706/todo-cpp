@@ -8,7 +8,8 @@
 #include <sstream>
 
 namespace {
-
+//----------自定义排序函数-----------
+// 比较两个任务的截止日期，无期限视为最后
 bool deadlineLess(const Task& a, const Task& b) {
 	const std::string& deadlineA = a.getDeadline();
 	const std::string& deadlineB = b.getDeadline();
@@ -22,23 +23,33 @@ bool deadlineLess(const Task& a, const Task& b) {
 
 // ---------- 文件字段转义 ----------
 // 存盘格式：id|title|description|completed|deadline
-// 字段内的 \ | 换行 用反斜杠转义，避免内容破坏分隔符。
-
+// 转义单个字段中的 \、| 和换行
 std::string escapeField(const std::string& s) {
 	std::string out;
 	out.reserve(s.size() + 8);
 	for (char c : s) {
 		switch (c) {
-			case '\\': out += "\\\\"; break;
-			case '|':  out += "\\|";  break;
-			case '\n': out += "\\n";  break;
-			case '\r': out += "\\r";  break;
-			default:   out += c;      break;
+			case '\\':
+				out += "\\\\";
+				break;
+			case '|':
+				out += "\\|";
+				break;
+			case '\n':
+				out += "\\n";
+				break;
+			case '\r':
+				out += "\\r";
+				break;
+			default:
+				out += c;
+				break;
 		}
 	}
 	return out;
 }
 
+// 还原字段中的转义，遇到非法转义返回 false
 bool unescapeField(const std::string& s, std::string& out) {
 	out.clear();
 	out.reserve(s.size());
@@ -49,17 +60,26 @@ bool unescapeField(const std::string& s, std::string& out) {
 		}
 		if (i + 1 >= s.size()) return false;
 		switch (s[++i]) {
-			case '\\': out += '\\'; break;
-			case '|':  out += '|';  break;
-			case 'n':  out += '\n'; break;
-			case 'r':  out += '\r'; break;
-			default:   return false;
+			case '\\':
+				out += '\\';
+				break;
+			case '|':
+				out += '|';
+				break;
+			case 'n':
+				out += '\n';
+				break;
+			case 'r':
+				out += '\r';
+				break;
+			default:
+				return false;
 		}
 	}
 	return true;
 }
 
-// 按「未被转义的 |」切分，保留转义序列，交给 unescapeField 还原。
+// 按未被转义的 | 切分一行，保留转义序列
 bool splitLine(const std::string& line, std::vector<std::string>& fields) {
 	fields.clear();
 	std::string current;
@@ -88,6 +108,7 @@ TodoList::TodoList()
 	: nextId(1) {
 }
 
+// 添加任务，成功返回 true
 bool TodoList::addTask(const std::string& title,
 					   const std::string& description,
 					   const std::string& deadline) {
@@ -104,6 +125,7 @@ bool TodoList::addTask(const std::string& title,
 	return true;
 }
 
+// 打印全部任务，空列表时输出提示
 void TodoList::showTasks() const {
 	if (tasks.empty()) {
 		std::cout << "当前没有待办事项。" << std::endl;
@@ -131,6 +153,7 @@ void TodoList::showTasks() const {
 	std::cout << "------------------------" << std::endl;
 }
 
+// 按 ID 标记完成，找不到返回 false
 bool TodoList::completeTask(int id) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
@@ -142,6 +165,7 @@ bool TodoList::completeTask(int id) {
 	return false;
 }
 
+// 按 ID 删除任务，找不到返回 false
 bool TodoList::deleteTask(int id) {
 	for (auto it = tasks.begin(); it != tasks.end(); it++) {
 		if (it->getId() == id) {
@@ -153,6 +177,7 @@ bool TodoList::deleteTask(int id) {
 	return false;
 }
 
+// 修改截止日期，日期非法或 ID 不存在返回 false
 bool TodoList::updateDeadline(int id, const std::string& deadline) {
 	if (!isValidDate(deadline)) return false;
 
@@ -166,16 +191,19 @@ bool TodoList::updateDeadline(int id, const std::string& deadline) {
 	return false;
 }
 
+// 按截止日期升序排序，无期限的排在最后
 void TodoList::sortByDeadline() {
 	std::stable_sort(tasks.begin(), tasks.end(), deadlineLess);
 }
 
+// 把所有任务标记为已完成
 void TodoList::completeAll() {
 	for (Task& task : tasks) {
 		task.markCompleted();
 	}
 }
 
+// 删除所有已完成的任务
 void TodoList::clearCompleted() {
 	auto it = tasks.begin();
 	while (it != tasks.end()) {
@@ -209,7 +237,7 @@ bool TodoList::saveToFile(const std::string& filename) const {
 		if (!file) return false;
 	}
 
-	// Windows 下 std::rename 不能覆盖已有文件，先删旧的再改名。
+	// 用临时文件写入，成功后再替换原文件
 	std::remove(filename.c_str());
 
 	if (std::rename(tempName.c_str(), filename.c_str()) != 0) {
@@ -276,9 +304,11 @@ bool TodoList::loadFromFile(const std::string& filename) {
 		if (id > maxId) maxId = id;
 	}
 
+	// 检查读取过程中是否发生错误
 	if (file.bad()) return false;
 
 	tasks = loadedTasks;
+	// 恢复下一个可用编号
 	nextId = maxId + 1;
 
 	return true;
