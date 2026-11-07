@@ -6,6 +6,7 @@
 #include <iostream>
 #include <limits>
 #include <string>
+#include <system_error>
 
 #include <windows.h>
 
@@ -38,6 +39,8 @@ bool readInt(int& value) {
 		return true;
 	}
 
+	if (std::cin.eof()) return false;
+
 	std::cin.clear();
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	return false;
@@ -52,13 +55,14 @@ std::string readLine() {
 	return text;
 }
 
-// 把任务保存到数据文件，失败时输出提示
-void persist(const TodoList& list) {
-	std::filesystem::create_directories("data");
-
+// 把任务保存到数据文件，成功返回 true
+bool persist(const TodoList& list) {
 	if (!list.saveToFile(DATA_FILE)) {
 		std::cout << "!! 保存失败，请检查 " << DATA_FILE << " 是否可写。\n";
+		return false;
 	}
+
+	return true;
 }
 
 // 添加任务
@@ -141,11 +145,22 @@ int main() {
 
 	if (list.loadFromFile(DATA_FILE)) {
 		std::cout << "已载入 " << DATA_FILE << "。\n";
+	} else if (std::filesystem::exists(DATA_FILE)) {
+		const std::string backup = std::string(DATA_FILE) + ".bak";
+		std::error_code error;
+		std::filesystem::rename(DATA_FILE, backup, error);
+
+		if (error) {
+			std::cout << "数据文件损坏且无法备份，请手工检查 " << DATA_FILE << "。\n";
+			return 1;
+		}
+
+		std::cout << "数据文件损坏，已备份为 " << backup << "，从空列表开始。\n";
 	} else {
 		std::cout << "未找到数据文件，从空列表开始。\n";
 	}
 
-	bool dirty = false;   // 本轮是否改动过数据
+	bool dirty = false;  // 本轮是否改动过数据
 	bool running = true;
 
 	while (running) {
@@ -154,6 +169,11 @@ int main() {
 		int choice = -1;
 
 		if (!readInt(choice)) {
+			if (std::cin.eof()) {
+				std::cout << "\n输入结束，程序退出。\n";
+				break;
+			}
+
 			std::cout << "请输入 0-9 的数字。\n";
 			continue;
 		}
@@ -203,9 +223,10 @@ int main() {
 				break;
 
 			case 9:
-				persist(list);
-				std::cout << "已保存。\n";
-				dirty = false;
+				if (persist(list)) {
+					std::cout << "已保存。\n";
+					dirty = false;
+				}
 				break;
 
 			case 0:
@@ -219,8 +240,7 @@ int main() {
 
 		// 有改动则自动存盘
 		if (dirty && running) {
-			persist(list);
-			dirty = false;
+			if (persist(list)) dirty = false;
 		}
 	}
 
