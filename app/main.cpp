@@ -33,18 +33,21 @@ void printMenu() {
 
 // 读一个整数，输入非法时返回 false
 bool readInt(int& value) {
-	if (std::cin >> value) return true;
+	if (std::cin >> value) {
+		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		return true;
+	}
 
 	std::cin.clear();
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	return false;
 }
 
-// 读一整行，跳过前导空白
+// 读一整行，允许空行
 std::string readLine() {
 	std::string text;
 
-	std::getline(std::cin >> std::ws, text);
+	std::getline(std::cin, text);
 
 	return text;
 }
