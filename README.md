@@ -23,6 +23,7 @@
 
 - Windows
 - g++ 11.5 或更高（支持 C++17）
+- g++ 与 gdb 需要在系统 PATH 中（把 MinGW 的 `bin` 目录加进 PATH）
 
 ## 编译与运行
 

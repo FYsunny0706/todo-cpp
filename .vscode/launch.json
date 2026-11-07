@@ -12,7 +12,6 @@
             "environment": [],
             "externalConsole": true,
             "MIMode": "gdb",
-            "miDebuggerPath": "D:/royqh/mingw64/bin/gdb.exe",
             "preLaunchTask": "build"
         }
     ]
