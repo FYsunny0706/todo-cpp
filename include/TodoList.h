@@ -20,7 +20,9 @@ class TodoList {
 
 	bool addTask(const std::string& title,
 				 const std::string& description,
-				 const std::string& deadline);
+				 const std::string& deadline,
+				 const std::string& category = "其他",
+				 int importance = 0);
 
 	void showTasks() const;
 

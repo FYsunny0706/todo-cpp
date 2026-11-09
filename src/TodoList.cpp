@@ -81,7 +81,7 @@ bool unescapeField(const std::string& s, std::string& out) {
 }
 
 // 按未被转义的 | 切分一行，保留转义序列
-bool splitLine(const std::string& line, std::vector<std::string>& fields) {
+bool splitLine(const std::string& line, std::vector<std::string>& fields, std::size_t expected) {
 	fields.clear();
 	std::string current;
 	for (std::size_t i = 0; i < line.size(); ++i) {
@@ -100,7 +100,7 @@ bool splitLine(const std::string& line, std::vector<std::string>& fields) {
 		current += c;
 	}
 	fields.push_back(current);
-	return fields.size() == 5;
+	return fields.size() == expected;
 }
 
 }  // namespace
@@ -121,12 +121,16 @@ void TodoList::renumber() {
 // 添加任务，成功返回 true
 bool TodoList::addTask(const std::string& title,
 					   const std::string& description,
-					   const std::string& deadline) {
+					   const std::string& deadline,
+					   const std::string& category,
+					   int importance) {
 	if (title.empty()) return false;
 
 	if (!isValidDate(deadline)) return false;
 
-	Task task(nextId, title, description, false, deadline);
+	if (importance != 0 && importance != 1) importance = 0;
+
+	Task task(nextId, title, description, false, deadline, category, importance);
 
 	tasks.push_back(task);
 
@@ -148,6 +152,8 @@ void TodoList::showTasks() const {
 		std::cout << "ID: " << task.getId() << std::endl;
 		std::cout << "标题: " << task.getTitle() << std::endl;
 		std::cout << "描述: " << task.getDescription() << std::endl;
+		std::cout << "分类: " << task.getCategory();
+		std::cout << "  重要: " << (task.getImportance() ? "是" : "否") << std::endl;
 
 		std::cout << "完成状态: "
 				  << (task.isCompleted() ? "已完成" : "未完成")
@@ -246,13 +252,16 @@ bool TodoList::saveToFile(const std::string& filename) const {
 		std::ofstream file(tempName);
 
 		if (!file.is_open()) return false;
+		file << "v2" << '\n';
 
 		for (const Task& task : tasks) {
 			file << task.getId() << '|'
 				 << escapeField(task.getTitle()) << '|'
 				 << escapeField(task.getDescription()) << '|'
 				 << (task.isCompleted() ? 1 : 0) << '|'
-				 << escapeField(task.getDeadline()) << '\n';
+				 << escapeField(task.getDeadline()) << '|'
+				 << escapeField(task.getCategory()) << '|'
+				 << task.getImportance() << '\n';
 
 			if (!file) return false;
 		}
@@ -284,27 +293,62 @@ bool TodoList::loadFromFile(const std::string& filename) {
 	std::string line;
 	std::set<int> seenIds;
 
+	bool v2 = false;
+	bool firstLine = true;
+
 	while (std::getline(file, line)) {
 		while (!line.empty() && (line.back() == ' ' || line.back() == '\t' || line.back() == '\r'))
 			line.pop_back();
 
 		if (line.empty()) continue;
 
+		if (firstLine) {
+			firstLine = false;
+
+			// 去掉可能的 UTF-8 BOM
+			if (line.size() >= 3 &&
+				static_cast<unsigned char>(line[0]) == 0xEF &&
+				static_cast<unsigned char>(line[1]) == 0xBB &&
+				static_cast<unsigned char>(line[2]) == 0xBF) {
+				line.erase(0, 3);
+			}
+
+			if (line.empty()) continue;
+
+			if (line == "v2") {
+				v2 = true;
+				continue;
+			}
+		}
+
 		std::vector<std::string> fields;
 
-		if (!splitLine(line, fields)) return false;
+		if (!splitLine(line, fields, v2 ? 7 : 5)) return false;
 
 		std::string idStr;
 		std::string title;
 		std::string description;
 		std::string completedStr;
 		std::string deadline;
+		std::string category = "其他";
+		int importance = 0;
 
 		if (!unescapeField(fields[0], idStr)) return false;
 		if (!unescapeField(fields[1], title)) return false;
 		if (!unescapeField(fields[2], description)) return false;
 		if (!unescapeField(fields[3], completedStr)) return false;
 		if (!unescapeField(fields[4], deadline)) return false;
+
+		if (v2) {
+			std::string importanceStr;
+
+			if (!unescapeField(fields[5], category)) return false;
+			if (!unescapeField(fields[6], importanceStr)) return false;
+
+			if (importanceStr != "0" && importanceStr != "1") return false;
+
+			importance = (importanceStr == "1") ? 1 : 0;
+		}
 
 		int id;
 		try {
@@ -325,7 +369,7 @@ bool TodoList::loadFromFile(const std::string& filename) {
 
 		if (!isValidDate(deadline)) return false;
 
-		Task task(id, title, description, completedStr == "1", deadline);
+		Task task(id, title, description, completedStr == "1", deadline, category, importance);
 
 		loadedTasks.push_back(task);
 	}

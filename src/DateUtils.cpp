@@ -1,8 +1,29 @@
 #include "DateUtils.h"
 
-// 校验日期是否为合法的 YYYY-MM-DD，空字符串视为有效
+// 校验日期是否为合法的 YYYY-MM-DD 或 YYYY-MM-DD HH:MM，空字符串视为有效
 bool isValidDate(const std::string& date) {
 	if (date.empty()) return true;
+
+	if (date.length() == 16) {
+		if (date[10] != ' ') return false;
+
+		const std::string timePart = date.substr(11);
+
+		if (timePart.length() != 5 || timePart[2] != ':') return false;
+
+		for (int i = 0; i < 5; i++) {
+			if (i == 2) continue;
+
+			if (timePart[i] < '0' || timePart[i] > '9') return false;
+		}
+
+		const int hour = std::stoi(timePart.substr(0, 2));
+		const int minute = std::stoi(timePart.substr(3, 2));
+
+		if (hour > 23 || minute > 59) return false;
+
+		return isValidDate(date.substr(0, 10));
+	}
 
 	if (date.length() != 10) return false;
 
