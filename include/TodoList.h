@@ -52,11 +52,11 @@ class TodoList {
 	// 只打印指定编号的任务
 	void showTasks(const std::vector<int>& ids) const;
 
-	// 按 ID 标记完成，找不到返回 false
-	bool completeTask(int id);
+	// 按 ID 标记完成：1 已改变，0 已经是完成状态，-1 编号不存在
+	int completeTask(int id);
 
-	// 按 ID 取消完成，找不到返回 false
-	bool uncompleteTask(int id);
+	// 按 ID 取消完成：1 已改变，0 本来就是未完成，-1 编号不存在
+	int uncompleteTask(int id);
 
 	// 按 ID 删除任务，找不到返回 false
 	bool deleteTask(int id);

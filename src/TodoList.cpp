@@ -219,26 +219,30 @@ std::vector<int> TodoList::find(const Query& query) const {
 	return result;
 }
 
-bool TodoList::completeTask(int id) {
+int TodoList::completeTask(int id) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
+			if (task.isCompleted()) return 0;
+
 			task.markCompleted();
-			return true;
+			return 1;
 		}
 	}
 
-	return false;
+	return -1;
 }
 
-bool TodoList::uncompleteTask(int id) {
+int TodoList::uncompleteTask(int id) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
+			if (!task.isCompleted()) return 0;
+
 			task.markUncompleted();
-			return true;
+			return 1;
 		}
 	}
 
-	return false;
+	return -1;
 }
 
 bool TodoList::deleteTask(int id) {
