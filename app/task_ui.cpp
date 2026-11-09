@@ -1,6 +1,8 @@
 #include "task_ui.h"
 
 #include <iostream>
+#include <algorithm>
+#include <sstream>
 #include <string>
 
 #include "DateUtils.h"
@@ -16,8 +18,8 @@ void printTaskMenu() {
 	std::cout << "  5. 删除任务\n";
 	std::cout << "  6. 修改任务\n";
 	std::cout << "  7. 按截止日期排序\n";
-	std::cout << "  8. 全部标记完成\n";
-	std::cout << "  9. 清空已完成\n";
+	std::cout << "  8. 批量标记\n";
+	std::cout << "  9. 批量删除\n";
 	std::cout << " 10. 查找任务\n";
 	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
@@ -332,6 +334,202 @@ void editMenu(TodoList& list, bool& dirty) {
 	}
 }
 
+// 批量标记子菜单
+void printMarkMenu() {
+	std::cout << "\n--- 批量标记 ---\n";
+	std::cout << "  1. 全部标记完成\n";
+	std::cout << "  2. 按编号标记完成\n";
+	std::cout << "  0. 返回\n";
+	std::cout << "请选择: ";
+}
+
+// 全部标记完成
+void markAllFlow(TodoList& list) {
+	const int changed = list.completeAll();
+
+	if (changed == 0) {
+		std::cout << "当前没有任务，无需标记。\n";
+		return;
+	}
+
+	std::cout << "已把 " << changed << " 条任务标记为完成。\n";
+}
+
+// 按编号标记多个任务
+void markMultipleFlow(TodoList& list) {
+	std::cout << "要标记完成的编号（空格分隔，例如 1 3 5）: ";
+	const std::string line = readLine();
+
+	std::istringstream input(line);
+
+	int id = 0;
+	int ok = 0;
+	int fail = 0;
+
+	while (input >> id) {
+		if (list.completeTask(id)) {
+			std::cout << "编号 " << id << " 已标记完成。\n";
+			++ok;
+		} else {
+			std::cout << "编号 " << id << " 不存在。\n";
+			++fail;
+		}
+	}
+
+	if (ok + fail == 0) {
+		std::cout << "没有输入任何编号。\n";
+		return;
+	}
+
+	std::cout << "处理完成：成功 " << ok << " 个，失败 " << fail << " 个。\n";
+}
+
+// 批量标记子菜单入口
+void markMenu(TodoList& list, bool& dirty) {
+	bool back = false;
+
+	while (!back) {
+		printMarkMenu();
+
+		int choice = -1;
+
+		if (!readInt(choice)) {
+			if (std::cin.eof()) return;
+
+			std::cout << "请输入 0-2 的数字。\n";
+			continue;
+		}
+
+		switch (choice) {
+			case 1:
+				markAllFlow(list);
+				dirty = true;
+				break;
+
+			case 2:
+				markMultipleFlow(list);
+				dirty = true;
+				break;
+
+			case 0:
+				back = true;
+				break;
+
+			default:
+				std::cout << "没有这个选项。\n";
+				break;
+		}
+
+		// 有改动则自动存盘
+		if (dirty && !back) {
+			if (persist(list)) dirty = false;
+		}
+	}
+}
+
+// 批量删除子菜单
+void printDeleteMenu() {
+	std::cout << "\n--- 批量删除 ---\n";
+	std::cout << "  1. 按编号删除\n";
+	std::cout << "  2. 清空已完成\n";
+	std::cout << "  0. 返回\n";
+	std::cout << "请选择: ";
+}
+
+// 按编号删除多个任务
+void deleteMultipleFlow(TodoList& list) {
+	std::cout << "要删除的编号（空格分隔，例如 1 3 5）: ";
+	const std::string line = readLine();
+
+	std::istringstream input(line);
+
+	std::vector<int> ids;
+	int id = 0;
+
+	while (input >> id) {
+		ids.push_back(id);
+	}
+
+	if (ids.empty()) {
+		std::cout << "没有输入任何编号。\n";
+		return;
+	}
+
+	// 从大到小删，避免删掉后面的编号后前面的编号前移
+	std::sort(ids.begin(), ids.end());
+	std::reverse(ids.begin(), ids.end());
+
+	int ok = 0;
+	int fail = 0;
+
+	for (int target : ids) {
+		if (list.deleteTask(target)) {
+			std::cout << "编号 " << target << " 已删除。\n";
+			++ok;
+		} else {
+			std::cout << "编号 " << target << " 不存在。\n";
+			++fail;
+		}
+	}
+
+	std::cout << "处理完成：成功 " << ok << " 个，失败 " << fail << " 个。\n";
+}
+
+// 清空已完成
+void clearCompletedFlow(TodoList& list) {
+	const int changed = list.clearCompleted();
+
+	if (changed == 0) {
+		std::cout << "没有已完成的任务。\n";
+		return;
+	}
+
+	std::cout << "已删除 " << changed << " 条已完成的任务。\n";
+}
+
+// 批量删除子菜单入口
+void deleteMenu(TodoList& list, bool& dirty) {
+	bool back = false;
+
+	while (!back) {
+		printDeleteMenu();
+
+		int choice = -1;
+
+		if (!readInt(choice)) {
+			if (std::cin.eof()) return;
+
+			std::cout << "请输入 0-2 的数字。\n";
+			continue;
+		}
+
+		switch (choice) {
+			case 1:
+				deleteMultipleFlow(list);
+				dirty = true;
+				break;
+
+			case 2:
+				clearCompletedFlow(list);
+				dirty = true;
+				break;
+
+			case 0:
+				back = true;
+				break;
+
+			default:
+				std::cout << "没有这个选项。\n";
+				break;
+		}
+
+		// 有改动则自动存盘
+		if (dirty && !back) {
+			if (persist(list)) dirty = false;
+		}
+	}
+}
+
 void taskMenu(TodoList& list, bool& dirty) {
 	bool back = false;
 
@@ -384,15 +582,11 @@ void taskMenu(TodoList& list, bool& dirty) {
 				break;
 
 			case 8:
-				list.completeAll();
-				std::cout << "已把全部任务标记为完成。\n";
-				dirty = true;
+				markMenu(list, dirty);
 				break;
 
 			case 9:
-				list.clearCompleted();
-				std::cout << "已清空完成的任务。\n";
-				dirty = true;
+				deleteMenu(list, dirty);
 				break;
 
 			case 10:
