@@ -98,6 +98,10 @@ int main() {
 			case 0:
 				running = false;
 				break;
+
+			default:
+				std::cout << "没有这个选项。\n";
+				break;
 		}
 	}
 

@@ -396,6 +396,10 @@ void markMultipleFlow(TodoList& list) {
 		}
 	}
 
+	if (!input.eof()) {
+		std::cout << "注意：输入中含有无法识别的内容，后面的编号已被忽略。\n";
+	}
+
 	if (ok + skip + fail == 0) {
 		std::cout << "没有输入任何编号。\n";
 		return;
@@ -441,6 +445,10 @@ void unmarkMultipleFlow(TodoList& list) {
 			std::cout << "编号 " << id << " 不存在。\n";
 			++fail;
 		}
+	}
+
+	if (!input.eof()) {
+		std::cout << "注意：输入中含有无法识别的内容，后面的编号已被忽略。\n";
 	}
 
 	if (ok + skip + fail == 0) {
@@ -526,6 +534,10 @@ void deleteMultipleFlow(TodoList& list) {
 
 	while (input >> id) {
 		ids.push_back(id);
+	}
+
+	if (!input.eof()) {
+		std::cout << "注意：输入中含有无法识别的内容，后面的编号已被忽略。\n";
 	}
 
 	if (ids.empty()) {

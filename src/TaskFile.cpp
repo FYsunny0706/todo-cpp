@@ -203,6 +203,8 @@ bool loadTasks(std::vector<Task>& out, const std::string& filename) {
 			std::string importanceStr;
 
 			if (!unescapeField(fields[5], category)) return false;
+
+			if (category.empty()) category = "其他";
 			if (!unescapeField(fields[6], importanceStr)) return false;
 
 			if (importanceStr != "0" && importanceStr != "1") return false;
