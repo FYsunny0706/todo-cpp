@@ -9,7 +9,7 @@
             "args": [
                 "-std=c++17", "-Wall", "-Wextra", "-g",
                 "-Iinclude",
-                "app/main.cpp", "src/*.cpp",
+                "app/*.cpp", "src/*.cpp",
                 "-o", "build/todo.exe"
             ],
             "options": { "cwd": "${workspaceFolder}" },
