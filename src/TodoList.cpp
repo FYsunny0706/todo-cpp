@@ -139,7 +139,28 @@ bool TodoList::addTask(const std::string& title,
 	return true;
 }
 
-// 打印全部任务，空列表时输出提示
+// 打印单条任务
+void TodoList::printTask(const Task& task) const {
+	std::cout << "------------------------" << std::endl;
+
+	std::cout << "ID: " << task.getId() << std::endl;
+	std::cout << "标题: " << task.getTitle() << std::endl;
+	std::cout << "描述: " << task.getDescription() << std::endl;
+	std::cout << "分类: " << task.getCategory();
+	std::cout << "  重要: " << (task.getImportance() ? "是" : "否") << std::endl;
+
+	std::cout << "完成状态: "
+			  << (task.isCompleted() ? "已完成" : "未完成")
+			  << std::endl;
+
+	std::cout << "截止时间: "
+			  << (task.getDeadline().empty()
+					  ? "无"
+					  : task.getDeadline())
+			  << std::endl;
+}
+
+//打印全部任务，空列表时输出提示
 void TodoList::showTasks() const {
 	if (tasks.empty()) {
 		std::cout << "当前没有待办事项。" << std::endl;
@@ -147,28 +168,50 @@ void TodoList::showTasks() const {
 	}
 
 	for (const Task& task : tasks) {
-		std::cout << "------------------------" << std::endl;
-
-		std::cout << "ID: " << task.getId() << std::endl;
-		std::cout << "标题: " << task.getTitle() << std::endl;
-		std::cout << "描述: " << task.getDescription() << std::endl;
-		std::cout << "分类: " << task.getCategory();
-		std::cout << "  重要: " << (task.getImportance() ? "是" : "否") << std::endl;
-
-		std::cout << "完成状态: "
-				  << (task.isCompleted() ? "已完成" : "未完成")
-				  << std::endl;
-
-		std::cout << "截止时间: "
-				  << (task.getDeadline().empty()
-						  ? "无"
-						  : task.getDeadline())
-				  << std::endl;
+		printTask(task);
 	}
 
 	std::cout << "------------------------" << std::endl;
 }
 
+//只打印指定编号的任务
+void TodoList::showTasks(const std::vector<int>& ids) const {
+	for (int id : ids) {
+		for (const Task& task : tasks) {
+			if (task.getId() == id) {
+				printTask(task);
+				break;
+			}
+		}
+	}
+
+	std::cout << "------------------------" << std::endl;
+}
+
+//按条件查找，返回匹配任务的编号
+std::vector<int> TodoList::find(const Query& query) const {
+	std::vector<int> result;
+
+	for (const Task& task : tasks) {
+		if (!query.keyword.empty() &&
+			task.getTitle().find(query.keyword) == std::string::npos &&
+			task.getDescription().find(query.keyword) == std::string::npos) {
+			continue;
+		}
+
+		if (!query.category.empty() && task.getCategory() != query.category) {
+			continue;
+		}
+
+		if (query.completed != -1 && task.isCompleted() != (query.completed == 1)) {
+			continue;
+		}
+
+		result.push_back(task.getId());
+	}
+
+	return result;
+}
 // 按 ID 标记完成，找不到返回 false
 bool TodoList::completeTask(int id) {
 	for (Task& task : tasks) {

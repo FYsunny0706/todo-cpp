@@ -5,6 +5,12 @@
 #include <string>
 #include "Task.h"
 
+struct Query {
+	std::string keyword;
+	std::string category;
+	int completed = -1;
+};
+
 // 待办事项集合：增删改查、排序与持久化
 class TodoList {
    private:
@@ -14,6 +20,8 @@ class TodoList {
 
 	//按当前顺序重新编号
 	void renumber();
+
+	void printTask(const Task& task) const;
 
    public:
 	TodoList();
@@ -25,6 +33,10 @@ class TodoList {
 				 int importance = 0);
 
 	void showTasks() const;
+
+	std::vector<int> find(const Query& Query) const;
+
+	void showTasks(const std::vector<int>& ids) const;
 
 	bool completeTask(int id);
 
