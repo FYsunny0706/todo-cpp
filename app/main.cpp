@@ -59,7 +59,8 @@ int main() {
 		std::cout << "未找到数据文件，从空列表开始。\n";
 	}
 
-	bool dirty = false;  // 本轮是否改动过数据
+	// 已存盘的版本号，用于判断退出前是否需要再存一次
+	int saved = list.getRevision();
 	bool running = true;
 
 	while (running) {
@@ -79,7 +80,8 @@ int main() {
 
 		switch (choice) {
 			case 1:
-				taskMenu(list, dirty);
+				taskMenu(list);
+				saved = list.getRevision();
 				if (std::cin.eof()) running = false;
 				break;
 
@@ -91,7 +93,7 @@ int main() {
 			case 3:
 				if (persist(list)) {
 					std::cout << "已保存。\n";
-					dirty = false;
+					saved = list.getRevision();
 				}
 				break;
 
@@ -105,7 +107,8 @@ int main() {
 		}
 	}
 
-	if (dirty) persist(list);
+	// 退出时仍有未保存的改动才写盘
+	if (list.getRevision() != saved) persist(list);
 
 	std::cout << "再见。\n";
 

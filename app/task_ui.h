@@ -3,7 +3,7 @@
 
 #include "TodoList.h"
 
-// 任务管理子菜单：循环处理用户选择，dirty 用于标记是否有改动
-void taskMenu(TodoList& list, bool& dirty);
+// 任务管理子菜单：循环处理用户选择，数据有变动时自动存盘
+void taskMenu(TodoList& list);
 
 #endif

@@ -26,6 +26,10 @@ TodoList::TodoList()
 	: nextId(1) {
 }
 
+int TodoList::getRevision() const {
+	return revision;
+}
+
 void TodoList::renumber() {
 	for (std::size_t i = 0; i < tasks.size(); i++) {
 		tasks[i].setId(static_cast<int>(i + 1));
@@ -53,15 +57,15 @@ bool TodoList::addTask(const std::string& title,
 
 	nextId++;
 
+	++revision;
+
 	return true;
 }
 
 void TodoList::printTask(const Task& task) const {
 	std::cout << "------------------------\n";
 
-	const std::string now = today();
-	const bool overdue = !task.isCompleted() && !task.getDeadline().empty() &&
-						 task.getDeadline().substr(0, 10) < now;
+	const bool overdue = !task.isCompleted() && isOverdue(task.getDeadline(), now());
 
 	std::cout << (task.isCompleted() ? "[x] " : "[ ] ") << task.getId() << ". " << task.getTitle() << '\n';
 
@@ -123,12 +127,8 @@ std::vector<int> TodoList::find(const Query& query) const {
 			continue;
 		}
 
-		if (!query.before.empty()) {
-			const std::string deadline = task.getDeadline();
-
-			if (deadline.empty() || deadline.substr(0, 10) >= query.before) {
-				continue;
-			}
+		if (!query.before.empty() && !isOverdue(task.getDeadline(), query.before)) {
+			continue;
 		}
 
 		if (query.importance != -1 && task.getImportance() != query.importance) {
@@ -147,6 +147,7 @@ int TodoList::completeTask(int id) {
 			if (task.isCompleted()) return 0;
 
 			task.markCompleted();
+			++revision;
 			return 1;
 		}
 	}
@@ -160,6 +161,7 @@ int TodoList::uncompleteTask(int id) {
 			if (!task.isCompleted()) return 0;
 
 			task.markUncompleted();
+			++revision;
 			return 1;
 		}
 	}
@@ -172,6 +174,7 @@ bool TodoList::deleteTask(int id) {
 		if (it->getId() == id) {
 			tasks.erase(it);
 			renumber();
+			++revision;
 			return true;
 		}
 	}
@@ -185,6 +188,7 @@ bool TodoList::updateDeadline(int id, const std::string& deadline) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
 			task.setDeadline(deadline);
+			++revision;
 			return true;
 		}
 	}
@@ -198,6 +202,7 @@ bool TodoList::updateTitle(int id, const std::string& title) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
 			task.setTitle(title);
+			++revision;
 			return true;
 		}
 	}
@@ -209,6 +214,7 @@ bool TodoList::updateDescription(int id, const std::string& description) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
 			task.setDescription(description);
+			++revision;
 			return true;
 		}
 	}
@@ -222,6 +228,7 @@ bool TodoList::updateCategory(int id, const std::string& category) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
 			task.setCategory(category);
+			++revision;
 			return true;
 		}
 	}
@@ -235,6 +242,7 @@ bool TodoList::updateImportance(int id, int importance) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
 			task.setImportance(importance);
+			++revision;
 			return true;
 		}
 	}
@@ -245,6 +253,8 @@ bool TodoList::updateImportance(int id, int importance) {
 void TodoList::sortByDeadline() {
 	std::stable_sort(tasks.begin(), tasks.end(), deadlineLess);
 	renumber();
+
+	if (tasks.size() > 1) ++revision;
 }
 
 int TodoList::completeAll() {
@@ -256,6 +266,8 @@ int TodoList::completeAll() {
 			++changed;
 		}
 	}
+
+	if (changed > 0) ++revision;
 
 	return changed;
 }
@@ -270,6 +282,8 @@ int TodoList::uncompleteAll() {
 		}
 	}
 
+	if (changed > 0) ++revision;
+
 	return changed;
 }
 
@@ -278,6 +292,8 @@ int TodoList::deleteAll() {
 
 	tasks.clear();
 	renumber();
+
+	if (count > 0) ++revision;
 
 	return count;
 }
@@ -296,7 +312,11 @@ int TodoList::clearCompleted() {
 
 	renumber();
 
-	return static_cast<int>(before - tasks.size());
+	const int removed = static_cast<int>(before - tasks.size());
+
+	if (removed > 0) ++revision;
+
+	return removed;
 }
 
 bool TodoList::saveToFile(const std::string& filename) const {

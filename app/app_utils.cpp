@@ -5,6 +5,9 @@
 bool readInt(int& value) {
 	const std::string line = readLine();
 
+	// 输入流出错但不是结束时清掉状态，避免主循环空转
+	if (std::cin.fail() && !std::cin.eof()) std::cin.clear();
+
 	if (line.empty()) return false;
 
 	try {

@@ -26,6 +26,9 @@ class TodoList {
 	// 下一个可用的任务编号
 	int nextId;
 
+	// 数据每改动一次就加一，用于判断是否需要存盘
+	int revision = 0;
+
 	//按当前顺序重新编号
 	void renumber();
 
@@ -35,6 +38,9 @@ class TodoList {
    public:
 	// 构造一个空列表
 	TodoList();
+
+	// 数据版本号，每次改动都会增加
+	int getRevision() const;
 
 	// 添加任务，标题与分类不能为空，成功返回 true
 	bool addTask(const std::string& title,
