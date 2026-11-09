@@ -22,28 +22,40 @@ class Task {
 		 const std::string& category = "其他",
 		 int importance = 0);
 
+	// 任务编号
 	int getId() const;
 
+	// 标题
 	std::string getTitle() const;
 
+	// 描述
 	std::string getDescription() const;
 
+	// 是否已完成
 	bool isCompleted() const;
 
+	// 截止时间，可能含时分
 	std::string getDeadline() const;
 
+	// 分类
 	const std::string& getCategory() const;
-	
+
+	// 重要度：0 不重要，1 重要
 	int getImportance() const;
 
+	// 设置标题
 	void setTitle(const std::string& title);
 
+	// 设置描述
 	void setDescription(const std::string& description);
 
+	// 设置截止时间
 	void setDeadline(const std::string& deadline);
 
+	// 设置分类
 	void setCategory(const std::string& category);
 
+	// 设置重要度
 	void setImportance(int importance);
 
 	// 标记为已完成

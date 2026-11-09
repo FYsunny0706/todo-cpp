@@ -25,9 +25,11 @@ class TodoList {
 	//按当前顺序重新编号
 	void renumber();
 
+	// 打印单条任务
 	void printTask(const Task& task) const;
 
    public:
+	// 构造一个空列表
 	TodoList();
 
 	// 添加任务，成功返回 true
