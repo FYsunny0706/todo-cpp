@@ -36,7 +36,7 @@ class TodoList {
 	// 构造一个空列表
 	TodoList();
 
-	// 添加任务，成功返回 true
+	// 添加任务，标题与分类不能为空，成功返回 true
 	bool addTask(const std::string& title,
 				 const std::string& description,
 				 const std::string& deadline,

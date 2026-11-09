@@ -124,6 +124,8 @@ bool TodoList::addTask(const std::string& title,
 					   int importance) {
 	if (title.empty()) return false;
 
+	if (category.empty()) return false;
+
 	if (!isValidDate(deadline)) return false;
 
 	if (importance != 0 && importance != 1) importance = 0;
