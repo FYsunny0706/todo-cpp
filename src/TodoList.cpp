@@ -109,6 +109,15 @@ TodoList::TodoList()
 	: nextId(1) {
 }
 
+//按当前顺序重排编号
+void TodoList::renumber() {
+	for (std::size_t i = 0; i < tasks.size(); i++) {
+		tasks[i].setId(static_cast<int>(i + 1));
+	}
+
+	nextId = static_cast<int>(tasks.size()) + 1;
+}
+
 // 添加任务，成功返回 true
 bool TodoList::addTask(const std::string& title,
 					   const std::string& description,
@@ -183,6 +192,7 @@ bool TodoList::deleteTask(int id) {
 	for (auto it = tasks.begin(); it != tasks.end(); it++) {
 		if (it->getId() == id) {
 			tasks.erase(it);
+			renumber();
 			return true;
 		}
 	}
@@ -207,6 +217,7 @@ bool TodoList::updateDeadline(int id, const std::string& deadline) {
 // 按截止日期升序排序，无期限的排在最后
 void TodoList::sortByDeadline() {
 	std::stable_sort(tasks.begin(), tasks.end(), deadlineLess);
+	renumber();
 }
 
 // 把所有任务标记为已完成
@@ -225,6 +236,7 @@ void TodoList::clearCompleted() {
 		else
 			it++;
 	}
+	renumber();
 }
 
 bool TodoList::saveToFile(const std::string& filename) const {
@@ -271,7 +283,6 @@ bool TodoList::loadFromFile(const std::string& filename) {
 	std::vector<Task> loadedTasks;
 	std::string line;
 	std::set<int> seenIds;
-	int maxId = 0;
 
 	while (std::getline(file, line)) {
 		while (!line.empty() && (line.back() == ' ' || line.back() == '\t' || line.back() == '\r'))
@@ -317,8 +328,6 @@ bool TodoList::loadFromFile(const std::string& filename) {
 		Task task(id, title, description, completedStr == "1", deadline);
 
 		loadedTasks.push_back(task);
-
-		if (id > maxId) maxId = id;
 	}
 
 	// 检查读取过程中是否发生错误
@@ -326,7 +335,7 @@ bool TodoList::loadFromFile(const std::string& filename) {
 
 	tasks = loadedTasks;
 	// 恢复下一个可用编号
-	nextId = maxId + 1;
+	renumber();
 
 	return true;
 }

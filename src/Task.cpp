@@ -50,3 +50,7 @@ void Task::markCompleted() {
 void Task::markUncompleted() {
 	completed = false;
 }
+
+void Task::setId(int id) {
+	this->id =id;
+}
