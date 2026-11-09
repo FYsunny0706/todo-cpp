@@ -74,3 +74,8 @@ void Task::setCategory(const std::string& category) {
 void Task::setImportance(int importance) {
 	this->importance = importance;
 }
+
+bool isKnownCategory(const std::string& category) {
+	return category == "学业" || category == "生活" ||
+		   category == "工作" || category == "其他";
+}

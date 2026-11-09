@@ -45,7 +45,7 @@ bool TodoList::addTask(const std::string& title,
 					   int importance) {
 	if (title.empty()) return false;
 
-	if (category.empty()) return false;
+	if (!isKnownCategory(category)) return false;
 
 	if (!isValidDate(deadline)) return false;
 
@@ -223,7 +223,7 @@ bool TodoList::updateDescription(int id, const std::string& description) {
 }
 
 bool TodoList::updateCategory(int id, const std::string& category) {
-	if (category.empty()) return false;
+	if (!isKnownCategory(category)) return false;
 
 	for (Task& task : tasks) {
 		if (task.getId() == id) {

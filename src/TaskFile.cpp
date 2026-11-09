@@ -89,12 +89,6 @@ bool splitLine(const std::string& line, std::vector<std::string>& fields, std::s
 	return fields.size() == expected;
 }
 
-// 分类只允许这四个值
-bool isKnownCategory(const std::string& category) {
-	return category == "学业" || category == "生活" ||
-		   category == "工作" || category == "其他";
-}
-
 }  // namespace
 
 bool saveTasks(const std::vector<Task>& tasks, const std::string& filename) {

@@ -68,4 +68,7 @@ class Task {
 	void setId(int id);
 };
 
+// 分类是否为四种标准分类之一
+bool isKnownCategory(const std::string& category);
+
 #endif
