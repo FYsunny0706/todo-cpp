@@ -79,11 +79,11 @@ class TodoList {
 	// 按截止日期升序排序，无期限的排在最后
 	void sortByDeadline();
 
-	// 把所有任务标记为已完成
-	void completeAll();
+	// 把所有任务标记为已完成，返回处理的数量
+	int completeAll();
 
-	// 删除所有已完成的任务
-	void clearCompleted();
+	// 删除所有已完成的任务，返回删除的数量
+	int clearCompleted();
 
 	// 把所有任务写入文件，成功返回 true
 	bool saveToFile(const std::string& filename) const;

@@ -321,21 +321,29 @@ void TodoList::sortByDeadline() {
 	renumber();
 }
 
-void TodoList::completeAll() {
+int TodoList::completeAll() {
 	for (Task& task : tasks) {
 		task.markCompleted();
 	}
+
+	return static_cast<int>(tasks.size());
 }
 
-void TodoList::clearCompleted() {
+int TodoList::clearCompleted() {
+	const std::size_t before = tasks.size();
+
 	auto it = tasks.begin();
+
 	while (it != tasks.end()) {
 		if (it->isCompleted())
 			it = tasks.erase(it);
 		else
 			it++;
 	}
+
 	renumber();
+
+	return static_cast<int>(before - tasks.size());
 }
 
 bool TodoList::saveToFile(const std::string& filename) const {
