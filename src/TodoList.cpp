@@ -57,23 +57,26 @@ bool TodoList::addTask(const std::string& title,
 }
 
 void TodoList::printTask(const Task& task) const {
-	std::cout << "------------------------" << "\n";
+	std::cout << "------------------------\n";
 
-	std::cout << "ID: " << task.getId() << "\n";
-	std::cout << "标题: " << task.getTitle() << "\n";
-	std::cout << "描述: " << task.getDescription() << "\n";
-	std::cout << "分类: " << task.getCategory();
-	std::cout << "  重要: " << (task.getImportance() ? "是" : "否") << "\n";
+	const std::string now = today();
+	const bool overdue = !task.isCompleted() && !task.getDeadline().empty() &&
+						 task.getDeadline().substr(0, 10) < now;
 
-	std::cout << "完成状态: "
-			  << (task.isCompleted() ? "已完成" : "未完成")
-			  << "\n";
+	std::cout << (task.isCompleted() ? "[x] " : "[ ] ") << task.getId() << ". " << task.getTitle() << '\n';
 
-	std::cout << "截止时间: "
-			  << (task.getDeadline().empty()
-					  ? "无"
-					  : task.getDeadline())
-			  << "\n";
+	if (!task.getDescription().empty()) {
+		std::cout << "    描述: " << task.getDescription() << '\n';
+	}
+
+	std::cout << "    分类: " << task.getCategory()
+			  << "  重要: " << (task.getImportance() ? "是" : "否") << '\n';
+
+	std::cout << "    截止: " << (task.getDeadline().empty() ? "无" : task.getDeadline());
+
+	if (overdue) std::cout << "  ! 已逾期";
+
+	std::cout << '\n';
 }
 
 void TodoList::showTasks() const {
