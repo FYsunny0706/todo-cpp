@@ -85,6 +85,12 @@ class TodoList {
 	// 删除所有已完成的任务，返回删除的数量
 	int clearCompleted();
 
+	// 取消所有任务的完成标记，返回处理的数量
+	int uncompleteAll();
+
+	// 删除所有任务，返回删除的数量
+	int deleteAll();
+
 	// 把所有任务写入文件，成功返回 true
 	bool saveToFile(const std::string& filename) const;
 

@@ -339,6 +339,8 @@ void printMarkMenu() {
 	std::cout << "\n--- 批量标记 ---\n";
 	std::cout << "  1. 全部标记完成\n";
 	std::cout << "  2. 按编号标记完成\n";
+	std::cout << "  3. 全部取消标记\n";
+	std::cout << "  4. 按编号取消标记\n";
 	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
 }
@@ -348,7 +350,7 @@ void markAllFlow(TodoList& list) {
 	const int changed = list.completeAll();
 
 	if (changed == 0) {
-		std::cout << "当前没有任务，无需标记。\n";
+		std::cout << "没有需要标记的任务。\n";
 		return;
 	}
 
@@ -384,6 +386,47 @@ void markMultipleFlow(TodoList& list) {
 	std::cout << "处理完成：成功 " << ok << " 个，失败 " << fail << " 个。\n";
 }
 
+// 全部取消标记
+void unmarkAllFlow(TodoList& list) {
+	const int changed = list.uncompleteAll();
+
+	if (changed == 0) {
+		std::cout << "没有被标记完成的任务。\n";
+		return;
+	}
+
+	std::cout << "已取消 " << changed << " 条任务的完成标记。\n";
+}
+
+// 按编号取消标记
+void unmarkMultipleFlow(TodoList& list) {
+	std::cout << "要取消标记的编号（空格分隔，例如 1 3 5）: ";
+	const std::string line = readLine();
+
+	std::istringstream input(line);
+
+	int id = 0;
+	int ok = 0;
+	int fail = 0;
+
+	while (input >> id) {
+		if (list.uncompleteTask(id)) {
+			std::cout << "编号 " << id << " 已取消标记。\n";
+			++ok;
+		} else {
+			std::cout << "编号 " << id << " 不存在。\n";
+			++fail;
+		}
+	}
+
+	if (ok + fail == 0) {
+		std::cout << "没有输入任何编号。\n";
+		return;
+	}
+
+	std::cout << "处理完成：成功 " << ok << " 个，失败 " << fail << " 个。\n";
+}
+
 // 批量标记子菜单入口
 void markMenu(TodoList& list, bool& dirty) {
 	bool back = false;
@@ -396,7 +439,7 @@ void markMenu(TodoList& list, bool& dirty) {
 		if (!readInt(choice)) {
 			if (std::cin.eof()) return;
 
-			std::cout << "请输入 0-2 的数字。\n";
+			std::cout << "请输入 0-4 的数字。\n";
 			continue;
 		}
 
@@ -408,6 +451,16 @@ void markMenu(TodoList& list, bool& dirty) {
 
 			case 2:
 				markMultipleFlow(list);
+				dirty = true;
+				break;
+
+			case 3:
+				unmarkAllFlow(list);
+				dirty = true;
+				break;
+
+			case 4:
+				unmarkMultipleFlow(list);
 				dirty = true;
 				break;
 
@@ -432,6 +485,7 @@ void printDeleteMenu() {
 	std::cout << "\n--- 批量删除 ---\n";
 	std::cout << "  1. 按编号删除\n";
 	std::cout << "  2. 清空已完成\n";
+	std::cout << "  3. 删除所有任务\n";
 	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
 }
@@ -487,6 +541,30 @@ void clearCompletedFlow(TodoList& list) {
 	std::cout << "已删除 " << changed << " 条已完成的任务。\n";
 }
 
+// 删除所有任务
+void deleteAllFlow(TodoList& list) {
+	Query all;
+	const int total = static_cast<int>(list.find(all).size());
+
+	if (total == 0) {
+		std::cout << "当前没有任务。\n";
+		return;
+	}
+
+	std::cout << "将删除全部 " << total << " 条任务，确定吗？（1 确认 / 0 取消）: ";
+
+	int confirm = 0;
+
+	if (!readInt(confirm) || confirm != 1) {
+		std::cout << "已取消。\n";
+		return;
+	}
+
+	const int changed = list.deleteAll();
+
+	std::cout << "已删除 " << changed << " 条任务。\n";
+}
+
 // 批量删除子菜单入口
 void deleteMenu(TodoList& list, bool& dirty) {
 	bool back = false;
@@ -499,7 +577,7 @@ void deleteMenu(TodoList& list, bool& dirty) {
 		if (!readInt(choice)) {
 			if (std::cin.eof()) return;
 
-			std::cout << "请输入 0-2 的数字。\n";
+			std::cout << "请输入 0-3 的数字。\n";
 			continue;
 		}
 
@@ -511,6 +589,11 @@ void deleteMenu(TodoList& list, bool& dirty) {
 
 			case 2:
 				clearCompletedFlow(list);
+				dirty = true;
+				break;
+
+			case 3:
+				deleteAllFlow(list);
 				dirty = true;
 				break;
 
