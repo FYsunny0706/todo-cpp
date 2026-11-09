@@ -1,5 +1,7 @@
 #include "DateUtils.h"
 
+#include <ctime>
+
 bool isValidDate(const std::string& date) {
 	if (date.empty()) return true;
 
@@ -48,4 +50,15 @@ bool isValidDate(const std::string& date) {
 	if (isLeapYear) daysInMonth[1] = 29;
 
 	return day >= 1 && day <= daysInMonth[month - 1];
+}
+
+// 取今天的日期，格式 YYYY-MM-DD
+std::string today() {
+	const std::time_t now = std::time(nullptr);
+	const std::tm* local = std::localtime(&now);
+
+	char buffer[11] = {0};
+	std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", local);
+
+	return std::string(buffer);
 }
