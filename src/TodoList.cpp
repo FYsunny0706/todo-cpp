@@ -250,7 +250,7 @@ bool TodoList::updateImportance(int id, int importance) {
 	return false;
 }
 
-void TodoList::sortByDeadline() {
+bool TodoList::sortByDeadline() {
 	// 记录排序前的截止日期顺序，用于判断顺序是否真的变了
 	std::vector<std::string> beforeOrder;
 	beforeOrder.reserve(tasks.size());
@@ -263,9 +263,11 @@ void TodoList::sortByDeadline() {
 	for (std::size_t i = 0; i < tasks.size(); i++) {
 		if (tasks[i].getDeadline() != beforeOrder[i]) {
 			++revision;
-			break;
+			return true;
 		}
 	}
+
+	return false;
 }
 
 int TodoList::completeAll() {

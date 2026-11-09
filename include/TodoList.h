@@ -82,8 +82,8 @@ class TodoList {
 	// 修改重要度，ID 不存在或取值非法返回 false
 	bool updateImportance(int id, int importance);
 
-	// 按截止日期升序排序，无期限的排在最后
-	void sortByDeadline();
+	// 按截止日期升序排序，无期限的排在最后；顺序有变化返回 true
+	bool sortByDeadline();
 
 	// 把所有任务标记为已完成，返回处理的数量
 	int completeAll();

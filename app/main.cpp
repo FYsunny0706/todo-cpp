@@ -48,9 +48,14 @@ int main() {
 	if (list.loadFromFile(DATA_FILE)) {
 		std::cout << "已载入 " << DATA_FILE << "。\n";
 	} else if (std::filesystem::exists(DATA_FILE)) {
-		// 备份名带时间戳，避免覆盖旧备份
-		const std::string backup =
+		// 备份名带时间戳；同一秒内重复损坏时追加序号，避免覆盖
+		std::string backup =
 			std::string(DATA_FILE) + ".bak." + std::to_string(std::time(nullptr));
+
+		for (int suffix = 1; std::filesystem::exists(backup); suffix++) {
+			backup = std::string(DATA_FILE) + ".bak." + std::to_string(std::time(nullptr)) + "-" +
+					 std::to_string(suffix);
+		}
 		std::error_code error;
 		std::filesystem::rename(DATA_FILE, backup, error);
 
@@ -96,7 +101,9 @@ int main() {
 				break;
 
 			case 3:
-				if (persist(list)) {
+				if (list.getRevision() == saved) {
+					std::cout << "没有需要保存的改动。\n";
+				} else if (persist(list)) {
 					std::cout << "已保存。\n";
 					saved = list.getRevision();
 				}

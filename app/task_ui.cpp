@@ -679,8 +679,12 @@ void taskMenu(TodoList& list, int& saved) {
 				break;
 
 			case 7:
-				list.sortByDeadline();
-				std::cout << "已按截止日期排序（无期限的排在最后）。\n";
+				if (list.sortByDeadline()) {
+					std::cout << "已按截止日期排序（无期限的排在最后）。\n";
+				} else {
+					std::cout << "顺序没有变化。\n";
+				}
+
 				list.showTasks();
 				break;
 
