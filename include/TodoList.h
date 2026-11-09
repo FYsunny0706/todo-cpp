@@ -12,6 +12,9 @@ class TodoList {
 	// 下一个可用的任务编号
 	int nextId;
 
+	//按当前顺序重新编号
+	void renumber();
+
    public:
 	TodoList();
 

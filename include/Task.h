@@ -38,6 +38,9 @@ class Task {
 
 	// 标记为未完成
 	void markUncompleted();
+
+	//仅在重排编号时使用
+	void setId(int id);
 };
 
 #endif
