@@ -45,7 +45,7 @@ bool TodoList::addTask(const std::string& title,
 					   int importance) {
 	if (title.empty()) return false;
 
-	if (category.empty()) return false;
+	if (!isKnownCategory(category)) return false;
 
 	if (!isValidDate(deadline)) return false;
 
@@ -223,7 +223,7 @@ bool TodoList::updateDescription(int id, const std::string& description) {
 }
 
 bool TodoList::updateCategory(int id, const std::string& category) {
-	if (category.empty()) return false;
+	if (!isKnownCategory(category)) return false;
 
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
@@ -250,7 +250,7 @@ bool TodoList::updateImportance(int id, int importance) {
 	return false;
 }
 
-void TodoList::sortByDeadline() {
+bool TodoList::sortByDeadline() {
 	// 记录排序前的截止日期顺序，用于判断顺序是否真的变了
 	std::vector<std::string> beforeOrder;
 	beforeOrder.reserve(tasks.size());
@@ -263,9 +263,11 @@ void TodoList::sortByDeadline() {
 	for (std::size_t i = 0; i < tasks.size(); i++) {
 		if (tasks[i].getDeadline() != beforeOrder[i]) {
 			++revision;
-			break;
+			return true;
 		}
 	}
+
+	return false;
 }
 
 int TodoList::completeAll() {

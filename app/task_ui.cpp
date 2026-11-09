@@ -8,6 +8,8 @@
 #include "DateUtils.h"
 #include "app_utils.h"
 
+namespace {
+
 // 任务管理子菜单
 void printTaskMenu() {
 	std::cout << "\n--- 任务管理 ---\n";
@@ -637,6 +639,7 @@ void deleteMenu(TodoList& list, int& saved) {
 		}
 	}
 }
+}  // namespace
 
 void taskMenu(TodoList& list, int& saved) {
 	bool back = false;
@@ -679,8 +682,12 @@ void taskMenu(TodoList& list, int& saved) {
 				break;
 
 			case 7:
-				list.sortByDeadline();
-				std::cout << "已按截止日期排序（无期限的排在最后）。\n";
+				if (list.sortByDeadline()) {
+					std::cout << "已按截止日期排序（无期限的排在最后）。\n";
+				} else {
+					std::cout << "顺序没有变化。\n";
+				}
+
 				list.showTasks();
 				break;
 

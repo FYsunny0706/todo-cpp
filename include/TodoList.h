@@ -42,7 +42,7 @@ class TodoList {
 	// 数据版本号，每次改动都会增加
 	int getRevision() const;
 
-	// 添加任务，标题与分类不能为空，成功返回 true
+	// 添加任务，标题非空且分类必须是四类之一，成功返回 true
 	bool addTask(const std::string& title,
 				 const std::string& description,
 				 const std::string& deadline,
@@ -76,14 +76,14 @@ class TodoList {
 	// 修改描述，ID 不存在返回 false
 	bool updateDescription(int id, const std::string& description);
 
-	// 修改分类，ID 不存在或分类为空返回 false
+	// 修改分类，ID 不存在或分类不是四类之一返回 false
 	bool updateCategory(int id, const std::string& category);
 
 	// 修改重要度，ID 不存在或取值非法返回 false
 	bool updateImportance(int id, int importance);
 
-	// 按截止日期升序排序，无期限的排在最后
-	void sortByDeadline();
+	// 按截止日期升序排序，无期限的排在最后；顺序有变化返回 true
+	bool sortByDeadline();
 
 	// 把所有任务标记为已完成，返回处理的数量
 	int completeAll();
