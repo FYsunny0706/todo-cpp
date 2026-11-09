@@ -80,8 +80,8 @@ int main() {
 
 		switch (choice) {
 			case 1:
-				taskMenu(list);
-				saved = list.getRevision();
+				// 不在子菜单内部更新 saved，避免其保存失败后丢失重试机会
+				taskMenu(list, saved);
 				if (std::cin.eof()) running = false;
 				break;
 

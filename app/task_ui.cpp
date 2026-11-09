@@ -289,9 +289,7 @@ void editImportanceFlow(TodoList& list) {
 }
 
 // 修改任务子菜单
-void editMenu(TodoList& list) {
-	int saved = list.getRevision();
-
+void editMenu(TodoList& list, int& saved) {
 	bool back = false;
 
 	while (!back) {
@@ -457,9 +455,7 @@ void unmarkMultipleFlow(TodoList& list) {
 }
 
 // 批量标记子菜单入口
-void markMenu(TodoList& list) {
-	int saved = list.getRevision();
-
+void markMenu(TodoList& list, int& saved) {
 	bool back = false;
 
 	while (!back) {
@@ -598,9 +594,7 @@ void deleteAllFlow(TodoList& list) {
 }
 
 // 批量删除子菜单入口
-void deleteMenu(TodoList& list) {
-	int saved = list.getRevision();
-
+void deleteMenu(TodoList& list, int& saved) {
 	bool back = false;
 
 	while (!back) {
@@ -644,9 +638,7 @@ void deleteMenu(TodoList& list) {
 	}
 }
 
-void taskMenu(TodoList& list) {
-	int saved = list.getRevision();
-
+void taskMenu(TodoList& list, int& saved) {
 	bool back = false;
 
 	while (!back) {
@@ -683,7 +675,7 @@ void taskMenu(TodoList& list) {
 				break;
 
 			case 6:
-				editMenu(list);
+				editMenu(list, saved);
 				break;
 
 			case 7:
@@ -693,11 +685,11 @@ void taskMenu(TodoList& list) {
 				break;
 
 			case 8:
-				markMenu(list);
+				markMenu(list, saved);
 				break;
 
 			case 9:
-				deleteMenu(list);
+				deleteMenu(list, saved);
 				break;
 
 			case 10:
