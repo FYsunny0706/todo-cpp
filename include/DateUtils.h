@@ -13,6 +13,6 @@ std::string today();
 std::string now();
 
 // deadline 是否已过期：带时分的按完整时间比较，只有日期的按天比较
-bool isOverdue(const std::string& deadline, const std::string& nowText);
+bool isDeadlineBefore(const std::string& deadline, const std::string& nowText);
 
 #endif

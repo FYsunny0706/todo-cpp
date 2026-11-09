@@ -65,7 +65,7 @@ bool TodoList::addTask(const std::string& title,
 void TodoList::printTask(const Task& task) const {
 	std::cout << "------------------------\n";
 
-	const bool overdue = !task.isCompleted() && isOverdue(task.getDeadline(), now());
+	const bool overdue = !task.isCompleted() && isDeadlineBefore(task.getDeadline(), now());
 
 	std::cout << (task.isCompleted() ? "[x] " : "[ ] ") << task.getId() << ". " << task.getTitle() << '\n';
 
@@ -127,7 +127,7 @@ std::vector<int> TodoList::find(const Query& query) const {
 			continue;
 		}
 
-		if (!query.before.empty() && !isOverdue(task.getDeadline(), query.before)) {
+		if (!query.before.empty() && !isDeadlineBefore(task.getDeadline(), query.before)) {
 			continue;
 		}
 
