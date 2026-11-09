@@ -13,7 +13,7 @@ struct Query {
 	std::string category;
 	// -1 不限，0 未完成，1 已完成
 	int completed = -1;
-	// 截止时间早于这个值才算匹配，空表示不限
+	// 截止时间早于这个时间点才算匹配，空表示不限
 	std::string before;
 	// -1 不限，0 不重要，1 重要
 	int importance = -1;

@@ -38,6 +38,11 @@ int main() {
 	std::error_code dirError;
 	std::filesystem::create_directories(std::filesystem::path(DATA_FILE).parent_path(), dirError);
 
+	if (dirError) {
+		std::cout << "警告：无法创建数据目录，保存可能会失败。\n";
+	}
+
+
 	TodoList list;
 
 	if (list.loadFromFile(DATA_FILE)) {
@@ -80,8 +85,8 @@ int main() {
 
 		switch (choice) {
 			case 1:
-				taskMenu(list);
-				saved = list.getRevision();
+				// 不在子菜单内部更新 saved，避免其保存失败后丢失重试机会
+				taskMenu(list, saved);
 				if (std::cin.eof()) running = false;
 				break;
 

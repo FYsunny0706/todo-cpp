@@ -42,7 +42,7 @@ void showCompletion(const TodoList& list) {
 // 逾期任务
 void showOverdue(const TodoList& list) {
 	Query query;
-	query.before = today();
+	query.before = now();
 	query.completed = 0;
 
 	const std::vector<int> overdue = list.find(query);
