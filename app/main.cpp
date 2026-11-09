@@ -96,7 +96,7 @@ void addTaskFlow(TodoList& list) {
 	std::cout << "描述（可留空）: ";
 	const std::string description = readLine();
 
-	std::cout << "截止日期 YYYY-MM-DD（可留空）: ";
+	std::cout << "截止日期 YYYY-MM-DD 或 YYYY-MM-DD HH:MM（可留空）: ";
 	const std::string deadline = readLine();
 
 	std::cout << "分类（1 学业 / 2 生活 / 3 工作 / 4 其他）: ";
@@ -121,7 +121,7 @@ void addTaskFlow(TodoList& list) {
 	}
 
 	if (!isValidDate(deadline)) {
-		std::cout << "添加失败：截止日期必须是真实存在的 YYYY-MM-DD，或留空。\n";
+		std::cout << "添加失败：截止日期必须是 YYYY-MM-DD 或 YYYY-MM-DD HH:MM，或留空。\n";
 		return;
 	}
 
@@ -186,7 +186,7 @@ void updateDeadlineFlow(TodoList& list) {
 		return;
 	}
 
-	std::cout << "新的截止日期 YYYY-MM-DD（留空表示无期限）: ";
+	std::cout << "新的截止日期 YYYY-MM-DD 或 YYYY-MM-DD HH:MM（留空表示无期限）: ";
 	const std::string deadline = readLine();
 
 	if (!list.updateDeadline(id, deadline)) {
