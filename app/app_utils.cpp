@@ -1,8 +1,8 @@
 #include "app_utils.h"
 
 #include <iostream>
+#include <ctime>
 
-// 读一个整数，空行或输入非法时返回 false
 bool readInt(int& value) {
 	const std::string line = readLine();
 
@@ -18,7 +18,6 @@ bool readInt(int& value) {
 	}
 }
 
-// 读一整行，允许空行
 std::string readLine() {
 	std::string text;
 
@@ -40,7 +39,6 @@ std::string categoryName(int choice) {
 	}
 }
 
-// 把任务保存到数据文件，成功返回 true
 bool persist(const TodoList& list) {
 	if (!list.saveToFile(DATA_FILE)) {
 		std::cout << "!! 保存失败，请检查 " << DATA_FILE << " 是否可写。\n";
@@ -48,4 +46,14 @@ bool persist(const TodoList& list) {
 	}
 
 	return true;
+}
+
+std::string today() {
+	std::time_t now = std::time(nullptr);
+	std::tm* local = std::localtime(&now);
+
+	char buffer[11] = {0};
+	std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", local);
+
+	return std::string(buffer);
 }

@@ -12,6 +12,7 @@
 #include "TodoList.h"
 #include "app_utils.h"
 #include "task_ui.h"
+#include "stats_ui.h"
 
 namespace {
 
@@ -19,7 +20,8 @@ namespace {
 void printMainMenu() {
 	std::cout << "\n========== 待办事项 ==========\n";
 	std::cout << "  1. 任务管理\n";
-	std::cout << "  2. 保存\n";
+	std::cout << "  2. 统计\n";
+	std::cout << "  3. 保存\n";
 	std::cout << "  0. 退出\n";
 	std::cout << "请选择: ";
 }
@@ -64,7 +66,7 @@ int main() {
 				break;
 			}
 
-			std::cout << "请输入 0-2 的数字。\n";
+			std::cout << "请输入 0-3 的数字。\n";
 			continue;
 		}
 
@@ -75,6 +77,11 @@ int main() {
 				break;
 
 			case 2:
+				statsMenu(list);
+				if (std::cin.eof()) running = false;
+				break;
+
+			case 3:
 				if (persist(list)) {
 					std::cout << "已保存。\n";
 					dirty = false;
@@ -83,10 +90,6 @@ int main() {
 
 			case 0:
 				running = false;
-				break;
-
-			default:
-				std::cout << "没有这个选项。\n";
 				break;
 		}
 	}
