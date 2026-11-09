@@ -46,7 +46,7 @@
 **方式二：命令行**
 
 ```powershell
-g++ -std=c++17 -Wall -Wextra -Iinclude app/main.cpp src/*.cpp -o build/todo.exe
+g++ -std=c++17 -Wall -Wextra -Iinclude app/*.cpp src/*.cpp -o build/todo.exe
 .\build\todo.exe
 ```
 
@@ -57,7 +57,9 @@ g++ -std=c++17 -Wall -Wextra -Iinclude app/main.cpp src/*.cpp -o build/todo.exe
 ```
 todo-cpp/
 ├── app/
-│   └── main.cpp        主程序：菜单与交互
+│   ├── main.cpp        入口与主菜单
+│   ├── task_ui.cpp     任务管理与修改界面
+│   └── app_utils.cpp   输入读取与保存
 ├── include/
 │   ├── Task.h          单条任务的数据模型
 │   ├── TodoList.h      任务集合
