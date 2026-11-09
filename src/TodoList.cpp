@@ -221,6 +221,60 @@ bool TodoList::updateDeadline(int id, const std::string& deadline) {
 }
 
 // 按截止日期升序排序，无期限的排在最后
+// 修改标题，ID 不存在或标题为空返回 false
+bool TodoList::updateTitle(int id, const std::string& title) {
+	if (title.empty()) return false;
+
+	for (Task& task : tasks) {
+		if (task.getId() == id) {
+			task.setTitle(title);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// 修改描述，ID 不存在返回 false
+bool TodoList::updateDescription(int id, const std::string& description) {
+	for (Task& task : tasks) {
+		if (task.getId() == id) {
+			task.setDescription(description);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// 修改分类，ID 不存在或分类为空返回 false
+bool TodoList::updateCategory(int id, const std::string& category) {
+	if (category.empty()) return false;
+
+	for (Task& task : tasks) {
+		if (task.getId() == id) {
+			task.setCategory(category);
+			return true;
+		}
+	}
+
+	return false;
+}
+
+// 修改重要度，ID 不存在或取值非法返回 false
+bool TodoList::updateImportance(int id, int importance) {
+	if (importance != 0 && importance != 1) return false;
+
+	for (Task& task : tasks) {
+		if (task.getId() == id) {
+			task.setImportance(importance);
+			return true;
+		}
+	}
+
+	return false;
+}
+
 void TodoList::sortByDeadline() {
 	std::stable_sort(tasks.begin(), tasks.end(), deadlineLess);
 	renumber();

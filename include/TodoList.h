@@ -34,6 +34,14 @@ class TodoList {
 
 	bool updateDeadline(int id, const std::string& deadline);
 
+	bool updateTitle(int id, const std::string& title);
+
+	bool updateDescription(int id, const std::string& description);
+
+	bool updateCategory(int id, const std::string& category);
+
+	bool updateImportance(int id, int importance);
+
 	void sortByDeadline();
 
 	void completeAll();

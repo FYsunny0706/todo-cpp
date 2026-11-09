@@ -34,7 +34,7 @@ void printTaskMenu() {
 	std::cout << "  3. 标记完成\n";
 	std::cout << "  4. 取消标记\n";
 	std::cout << "  5. 删除任务\n";
-	std::cout << "  6. 修改截止日期\n";
+	std::cout << "  6. 修改任务\n";
 	std::cout << "  7. 按截止日期排序\n";
 	std::cout << "  8. 全部标记完成\n";
 	std::cout << "  9. 清空已完成\n";
@@ -197,6 +197,160 @@ void updateDeadlineFlow(TodoList& list) {
 	std::cout << "已修改。\n";
 }
 
+// 修改任务子菜单
+void printEditMenu() {
+	std::cout << "\n--- 修改任务 ---\n";
+	std::cout << "  1. 修改标题\n";
+	std::cout << "  2. 修改描述\n";
+	std::cout << "  3. 修改截止日期\n";
+	std::cout << "  4. 修改分类\n";
+	std::cout << "  5. 修改重要度\n";
+	std::cout << "  0. 返回\n";
+	std::cout << "请选择: ";
+}
+
+// 修改标题
+void editTitleFlow(TodoList& list) {
+	std::cout << "任务 ID: ";
+
+	int id = 0;
+
+	if (!readInt(id)) {
+		std::cout << "请输入数字。\n";
+		return;
+	}
+
+	std::cout << "新标题: ";
+	const std::string title = readLine();
+
+	std::cout << (list.updateTitle(id, title) ? "已修改。\n" : "修改失败：ID 不存在，或标题为空。\n");
+}
+
+// 修改描述
+void editDescriptionFlow(TodoList& list) {
+	std::cout << "任务 ID: ";
+
+	int id = 0;
+
+	if (!readInt(id)) {
+		std::cout << "请输入数字。\n";
+		return;
+	}
+
+	std::cout << "新描述（可留空）: ";
+	const std::string description = readLine();
+
+	std::cout << (list.updateDescription(id, description) ? "已修改。\n" : "修改失败：ID 不存在。\n");
+}
+
+// 修改分类
+void editCategoryFlow(TodoList& list) {
+	std::cout << "任务 ID: ";
+
+	int id = 0;
+
+	if (!readInt(id)) {
+		std::cout << "请输入数字。\n";
+		return;
+	}
+
+	std::cout << "新分类（1 学业 / 2 生活 / 3 工作 / 4 其他）: ";
+
+	int categoryChoice = 4;
+
+	if (!readInt(categoryChoice)) {
+		std::cout << "请输入数字。\n";
+		return;
+	}
+
+	const std::string category = categoryName(categoryChoice);
+
+	std::cout << (list.updateCategory(id, category) ? "已修改。\n" : "修改失败：ID 不存在。\n");
+}
+
+// 修改重要度
+void editImportanceFlow(TodoList& list) {
+	std::cout << "任务 ID: ";
+
+	int id = 0;
+
+	if (!readInt(id)) {
+		std::cout << "请输入数字。\n";
+		return;
+	}
+
+	std::cout << "是否重要？（1 是 / 0 否）: ";
+
+	int importance = 0;
+
+	if (!readInt(importance)) {
+		std::cout << "请输入数字。\n";
+		return;
+	}
+
+	if (importance != 1) importance = 0;
+
+	std::cout << (list.updateImportance(id, importance) ? "已修改。\n" : "修改失败：ID 不存在。\n");
+}
+
+// 修改任务子菜单
+void editMenu(TodoList& list, bool& dirty) {
+	bool back = false;
+
+	while (!back) {
+		printEditMenu();
+
+		int choice = -1;
+
+		if (!readInt(choice)) {
+			if (std::cin.eof()) return;
+
+			std::cout << "请输入 0-5 的数字。\n";
+			continue;
+		}
+
+		switch (choice) {
+			case 1:
+				editTitleFlow(list);
+				dirty = true;
+				break;
+
+			case 2:
+				editDescriptionFlow(list);
+				dirty = true;
+				break;
+
+			case 3:
+				updateDeadlineFlow(list);
+				dirty = true;
+				break;
+
+			case 4:
+				editCategoryFlow(list);
+				dirty = true;
+				break;
+
+			case 5:
+				editImportanceFlow(list);
+				dirty = true;
+				break;
+
+			case 0:
+				back = true;
+				break;
+
+			default:
+				std::cout << "没有这个选项。\n";
+				break;
+		}
+
+		// 有改动则自动存盘
+		if (dirty && !back) {
+			if (persist(list)) dirty = false;
+		}
+	}
+}
+
 void taskMenu(TodoList& list, bool& dirty) {
 	bool back = false;
 
@@ -238,8 +392,7 @@ void taskMenu(TodoList& list, bool& dirty) {
 				break;
 
 			case 6:
-				updateDeadlineFlow(list);
-				dirty = true;
+				editMenu(list, dirty);
 				break;
 
 			case 7:
