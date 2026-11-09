@@ -5,9 +5,13 @@
 #include <string>
 #include "Task.h"
 
+// 查询条件：空字符串或 -1 表示该项不限制
 struct Query {
+	// 标题或描述包含这个词
 	std::string keyword;
+	// 分类精确匹配
 	std::string category;
+	// -1 不限，0 未完成，1 已完成
 	int completed = -1;
 };
 
@@ -26,38 +30,53 @@ class TodoList {
    public:
 	TodoList();
 
+	// 添加任务，成功返回 true
 	bool addTask(const std::string& title,
 				 const std::string& description,
 				 const std::string& deadline,
 				 const std::string& category = "其他",
 				 int importance = 0);
 
+	// 打印全部任务，空列表时输出提示
 	void showTasks() const;
 
-	std::vector<int> find(const Query& Query) const;
+	// 按条件查找，返回匹配任务的编号
+	std::vector<int> find(const Query& query) const;
 
+	// 只打印指定编号的任务
 	void showTasks(const std::vector<int>& ids) const;
 
+	// 按 ID 标记完成，找不到返回 false
 	bool completeTask(int id);
 
+	// 按 ID 取消完成，找不到返回 false
 	bool uncompleteTask(int id);
 
+	// 按 ID 删除任务，找不到返回 false
 	bool deleteTask(int id);
 
+	// 修改截止日期，日期非法或 ID 不存在返回 false
 	bool updateDeadline(int id, const std::string& deadline);
 
+	// 修改标题，ID 不存在或标题为空返回 false
 	bool updateTitle(int id, const std::string& title);
 
+	// 修改描述，ID 不存在返回 false
 	bool updateDescription(int id, const std::string& description);
 
+	// 修改分类，ID 不存在或分类为空返回 false
 	bool updateCategory(int id, const std::string& category);
 
+	// 修改重要度，ID 不存在或取值非法返回 false
 	bool updateImportance(int id, int importance);
 
+	// 按截止日期升序排序，无期限的排在最后
 	void sortByDeadline();
 
+	// 把所有任务标记为已完成
 	void completeAll();
 
+	// 删除所有已完成的任务
 	void clearCompleted();
 
 	// 把所有任务写入文件，成功返回 true

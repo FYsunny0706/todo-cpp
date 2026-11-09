@@ -118,7 +118,6 @@ void TodoList::renumber() {
 	nextId = static_cast<int>(tasks.size()) + 1;
 }
 
-// 添加任务，成功返回 true
 bool TodoList::addTask(const std::string& title,
 					   const std::string& description,
 					   const std::string& deadline,
@@ -160,7 +159,6 @@ void TodoList::printTask(const Task& task) const {
 			  << std::endl;
 }
 
-//打印全部任务，空列表时输出提示
 void TodoList::showTasks() const {
 	if (tasks.empty()) {
 		std::cout << "当前没有待办事项。" << std::endl;
@@ -174,7 +172,6 @@ void TodoList::showTasks() const {
 	std::cout << "------------------------" << std::endl;
 }
 
-//只打印指定编号的任务
 void TodoList::showTasks(const std::vector<int>& ids) const {
 	for (int id : ids) {
 		for (const Task& task : tasks) {
@@ -188,7 +185,6 @@ void TodoList::showTasks(const std::vector<int>& ids) const {
 	std::cout << "------------------------" << std::endl;
 }
 
-//按条件查找，返回匹配任务的编号
 std::vector<int> TodoList::find(const Query& query) const {
 	std::vector<int> result;
 
@@ -212,7 +208,6 @@ std::vector<int> TodoList::find(const Query& query) const {
 
 	return result;
 }
-// 按 ID 标记完成，找不到返回 false
 bool TodoList::completeTask(int id) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
@@ -224,7 +219,6 @@ bool TodoList::completeTask(int id) {
 	return false;
 }
 
-// 按 ID 取消完成，找不到返回 false
 bool TodoList::uncompleteTask(int id) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
@@ -236,7 +230,6 @@ bool TodoList::uncompleteTask(int id) {
 	return false;
 }
 
-// 按 ID 删除任务，找不到返回 false
 bool TodoList::deleteTask(int id) {
 	for (auto it = tasks.begin(); it != tasks.end(); it++) {
 		if (it->getId() == id) {
@@ -249,7 +242,6 @@ bool TodoList::deleteTask(int id) {
 	return false;
 }
 
-// 修改截止日期，日期非法或 ID 不存在返回 false
 bool TodoList::updateDeadline(int id, const std::string& deadline) {
 	if (!isValidDate(deadline)) return false;
 
@@ -263,8 +255,6 @@ bool TodoList::updateDeadline(int id, const std::string& deadline) {
 	return false;
 }
 
-// 按截止日期升序排序，无期限的排在最后
-// 修改标题，ID 不存在或标题为空返回 false
 bool TodoList::updateTitle(int id, const std::string& title) {
 	if (title.empty()) return false;
 
@@ -278,7 +268,6 @@ bool TodoList::updateTitle(int id, const std::string& title) {
 	return false;
 }
 
-// 修改描述，ID 不存在返回 false
 bool TodoList::updateDescription(int id, const std::string& description) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
@@ -290,7 +279,6 @@ bool TodoList::updateDescription(int id, const std::string& description) {
 	return false;
 }
 
-// 修改分类，ID 不存在或分类为空返回 false
 bool TodoList::updateCategory(int id, const std::string& category) {
 	if (category.empty()) return false;
 
@@ -304,7 +292,6 @@ bool TodoList::updateCategory(int id, const std::string& category) {
 	return false;
 }
 
-// 修改重要度，ID 不存在或取值非法返回 false
 bool TodoList::updateImportance(int id, int importance) {
 	if (importance != 0 && importance != 1) return false;
 
@@ -323,14 +310,12 @@ void TodoList::sortByDeadline() {
 	renumber();
 }
 
-// 把所有任务标记为已完成
 void TodoList::completeAll() {
 	for (Task& task : tasks) {
 		task.markCompleted();
 	}
 }
 
-// 删除所有已完成的任务
 void TodoList::clearCompleted() {
 	auto it = tasks.begin();
 	while (it != tasks.end()) {
