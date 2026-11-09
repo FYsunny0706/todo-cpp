@@ -6,6 +6,7 @@
 
 #include "DateUtils.h"
 #include "app_utils.h"
+#include "text_art.h"
 
 namespace {
 
@@ -33,12 +34,9 @@ void showCompletion(const TodoList& list) {
 	std::cout << "已完成:   " << done << '\n';
 	std::cout << "未完成:   " << (total - done) << '\n';
 
-	if (total == 0) {
-		std::cout << "完成率:   0.0%\n";
-		return;
-	}
+	const double percent = (total == 0) ? 0.0 : (100.0 * done / total);
 
-	std::cout << "完成率:   " << (100.0 * done / total) << "%\n";
+	std::cout << "完成率:   " << progressBar(percent, 20) << ' ' << formatPercent(percent) << '\n';
 }
 
 // 逾期任务
@@ -62,18 +60,27 @@ void showOverdue(const TodoList& list) {
 void showCategoryDistribution(const TodoList& list) {
 	const char* categories[] = {"学业", "生活", "工作", "其他"};
 
+	int counts[4] = {0, 0, 0, 0};
+	int maxCount = 0;
+
+	for (int i = 0; i < 4; i++) {
+		Query query;
+		query.category = categories[i];
+
+		counts[i] = static_cast<int>(list.find(query).size());
+
+		if (counts[i] > maxCount) maxCount = counts[i];
+	}
+
 	std::cout << "分类分布：\n";
 
-	for (const char* category : categories) {
-		Query query;
-		query.category = category;
+	for (int i = 0; i < 4; i++) {
+		std::cout << "  " << categories[i] << "  " << counts[i] << "  ";
 
-		const int count = static_cast<int>(list.find(query).size());
+		const int width = (maxCount == 0) ? 0 : counts[i] * 20 / maxCount;
 
-		std::cout << "  " << category << "  " << count << "  ";
-
-		for (int i = 0; i < count; i++) {
-			std::cout << '#';
+		for (int j = 0; j < width; j++) {
+			std::cout << "█";
 		}
 
 		std::cout << '\n';
@@ -90,7 +97,10 @@ void showImportanceDistribution(const TodoList& list) {
 	const int yes = static_cast<int>(list.find(important).size());
 	const int total = static_cast<int>(list.find(all).size());
 
+	const double percent = (total == 0) ? 0.0 : (100.0 * yes / total);
+
 	std::cout << "重要任务: " << yes << " / " << total << '\n';
+	std::cout << "占比:     " << progressBar(percent, 20) << ' ' << formatPercent(percent) << '\n';
 }
 
 }  // namespace
