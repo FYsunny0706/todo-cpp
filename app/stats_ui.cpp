@@ -61,15 +61,14 @@ void showCategoryDistribution(const TodoList& list) {
 	const char* categories[] = {"学业", "生活", "工作", "其他"};
 
 	int counts[4] = {0, 0, 0, 0};
-	int maxCount = 0;
+	int total = 0;
 
 	for (int i = 0; i < 4; i++) {
 		Query query;
 		query.category = categories[i];
 
 		counts[i] = static_cast<int>(list.find(query).size());
-
-		if (counts[i] > maxCount) maxCount = counts[i];
+		total += counts[i];
 	}
 
 	std::cout << "分类分布：\n";
@@ -77,7 +76,7 @@ void showCategoryDistribution(const TodoList& list) {
 	for (int i = 0; i < 4; i++) {
 		std::cout << "  " << categories[i] << "  " << counts[i] << "  ";
 
-		const int width = (maxCount == 0) ? 0 : counts[i] * 20 / maxCount;
+		const int width = (total == 0) ? 0 : counts[i] * 20 / total;
 
 		for (int j = 0; j < width; j++) {
 			std::cout << "█";
