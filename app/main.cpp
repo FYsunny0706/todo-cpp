@@ -38,6 +38,11 @@ int main() {
 	std::error_code dirError;
 	std::filesystem::create_directories(std::filesystem::path(DATA_FILE).parent_path(), dirError);
 
+	if (dirError) {
+		std::cout << "警告：无法创建数据目录，保存可能会失败。\n";
+	}
+
+
 	TodoList list;
 
 	if (list.loadFromFile(DATA_FILE)) {
