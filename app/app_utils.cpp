@@ -12,6 +12,11 @@ bool readInt(int& value) {
 		std::size_t pos = 0;
 		value = std::stoi(line, &pos);
 
+		// 允许数字后面带空格或制表符
+		while (pos < line.size() && (line[pos] == ' ' || line[pos] == '\t')) {
+			++pos;
+		}
+
 		return pos == line.size();
 	} catch (...) {
 		return false;
