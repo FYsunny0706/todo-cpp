@@ -257,10 +257,9 @@ void editCategoryFlow(TodoList& list) {
 
 	int categoryChoice = 4;
 
-	if (!readInt(categoryChoice)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
+	if (!readInt(categoryChoice)) categoryChoice = 4;
+
+	if (categoryChoice < 1 || categoryChoice > 4) categoryChoice = 4;
 
 	const std::string category = categoryName(categoryChoice);
 
@@ -282,10 +281,7 @@ void editImportanceFlow(TodoList& list) {
 
 	int importance = 0;
 
-	if (!readInt(importance)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
+	if (!readInt(importance)) importance = 0;
 
 	if (importance != 1) importance = 0;
 
@@ -537,8 +533,9 @@ void deleteMultipleFlow(TodoList& list) {
 		return;
 	}
 
-	// 从大到小删，避免删掉后面的编号后前面的编号前移
+	// 先排序去重，再从大到小删，避免重复编号删掉别的任务
 	std::sort(ids.begin(), ids.end());
+	ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
 	std::reverse(ids.begin(), ids.end());
 
 	int ok = 0;
