@@ -13,6 +13,10 @@ struct Query {
 	std::string category;
 	// -1 不限，0 未完成，1 已完成
 	int completed = -1;
+	std::string before;
+	// 截止日期早于这一天才匹配，空表示不限
+	int importance = -1;
+	// -1 不限，0 不重要，1 重要
 };
 
 // 待办事项集合：增删改查、排序与持久化

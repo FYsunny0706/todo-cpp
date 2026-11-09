@@ -201,11 +201,24 @@ std::vector<int> TodoList::find(const Query& query) const {
 			continue;
 		}
 
+		if (!query.before.empty()) {
+			const std::string deadline = task.getDeadline();
+
+			if (deadline.empty() || deadline.substr(0, 10) >= query.before) {
+				continue;
+			}
+		}
+
+		if (query.importance != -1 && task.getImportance() != query.importance) {
+			continue;
+		}
+
 		result.push_back(task.getId());
 	}
 
 	return result;
 }
+
 bool TodoList::completeTask(int id) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
