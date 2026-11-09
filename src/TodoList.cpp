@@ -305,6 +305,16 @@ bool TodoList::loadFromFile(const std::string& filename) {
 		if (firstLine) {
 			firstLine = false;
 
+			// 去掉可能的 UTF-8 BOM
+			if (line.size() >= 3 &&
+				static_cast<unsigned char>(line[0]) == 0xEF &&
+				static_cast<unsigned char>(line[1]) == 0xBB &&
+				static_cast<unsigned char>(line[2]) == 0xBF) {
+				line.erase(0, 3);
+			}
+
+			if (line.empty()) continue;
+
 			if (line == "v2") {
 				v2 = true;
 				continue;
