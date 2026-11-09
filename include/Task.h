@@ -11,11 +11,15 @@ class Task {
 	std::string description;
 	bool completed;
 	std::string deadline;
+	std::string category;
+	int importance;
 
    public:
 	Task(int id, const std::string& title,
 		 const std::string& description,
-		 bool completed, const std::string& deadline);
+		 bool completed, const std::string& deadline,
+		 const std::string& category = "其他",
+		 int importance = 0);
 
 	int getId() const;
 
@@ -27,11 +31,19 @@ class Task {
 
 	std::string getDeadline() const;
 
+	const std::string& getCategory() const;
+	
+	int getImportance() const;
+
 	void setTitle(const std::string& title);
 
 	void setDescription(const std::string& description);
 
 	void setDeadline(const std::string& deadline);
+
+	void setCategory(const std::string& category);
+
+	void setImportance(int importance);
 
 	// 标记为已完成
 	void markCompleted();

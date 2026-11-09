@@ -11,6 +11,7 @@
 #include <windows.h>
 
 #include "TodoList.h"
+#include "DateUtils.h"
 
 namespace {
 
@@ -64,6 +65,19 @@ std::string readLine() {
 	return text;
 }
 
+std::string categoryName(int choice) {
+	switch (choice) {
+		case 1:
+			return "学业";
+		case 2:
+			return "生活";
+		case 3:
+			return "工作";
+		default:
+			return "其他";
+	}
+}
+
 // 把任务保存到数据文件，成功返回 true
 bool persist(const TodoList& list) {
 	if (!list.saveToFile(DATA_FILE)) {
@@ -85,8 +99,34 @@ void addTaskFlow(TodoList& list) {
 	std::cout << "截止日期 YYYY-MM-DD（可留空）: ";
 	const std::string deadline = readLine();
 
-	if (!list.addTask(title, description, deadline)) {
-		std::cout << "添加失败：标题不能为空，日期必须是合法的 YYYY-MM-DD。\n";
+	std::cout << "分类（1 学业 / 2 生活 / 3 工作 / 4 其他）: ";
+
+	int categoryChoice = 4;
+
+	if (!readInt(categoryChoice)) categoryChoice = 4;
+
+	std::cout << "是否重要？（1 是 / 0 否）: ";
+
+	int importance = 0;
+
+	if (!readInt(importance)) importance = 0;
+
+	if (importance != 1) importance = 0;
+
+	const std::string category = categoryName(categoryChoice);
+
+	if (title.empty()) {
+		std::cout << "添加失败：标题不能为空。\n";
+		return;
+	}
+
+	if (!isValidDate(deadline)) {
+		std::cout << "添加失败：截止日期必须是真实存在的 YYYY-MM-DD，或留空。\n";
+		return;
+	}
+
+	if (!list.addTask(title, description, deadline, category, importance)) {
+		std::cout << "添加失败。\n";
 		return;
 	}
 
