@@ -375,11 +375,15 @@ int TodoList::clearCompleted() {
 
 bool TodoList::saveToFile(const std::string& filename) const {
 	const std::string tempName = filename + ".tmp";
+	std::error_code ignored;
+
+	bool ok = true;
 
 	{
 		std::ofstream file(tempName);
 
 		if (!file.is_open()) return false;
+
 		file << "v2" << '\n';
 
 		for (const Task& task : tasks) {
@@ -391,12 +395,23 @@ bool TodoList::saveToFile(const std::string& filename) const {
 				 << escapeField(task.getCategory()) << '|'
 				 << task.getImportance() << '\n';
 
-			if (!file) return false;
+			if (!file) {
+				ok = false;
+				break;
+			}
 		}
 
-		file.flush();
+		if (ok) {
+			file.flush();
 
-		if (!file) return false;
+			if (!file) ok = false;
+		}
+	}
+
+	// 写入失败时删掉临时文件，避免留下半成品
+	if (!ok) {
+		std::filesystem::remove(tempName, ignored);
+		return false;
 	}
 
 	// 用临时文件写入，成功后再替换原文件
@@ -404,7 +419,6 @@ bool TodoList::saveToFile(const std::string& filename) const {
 	std::filesystem::rename(tempName, filename, error);
 
 	if (error) {
-		std::error_code ignored;
 		std::filesystem::remove(tempName, ignored);
 		return false;
 	}
