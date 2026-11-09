@@ -322,11 +322,38 @@ void TodoList::sortByDeadline() {
 }
 
 int TodoList::completeAll() {
+	int changed = 0;
+
 	for (Task& task : tasks) {
-		task.markCompleted();
+		if (!task.isCompleted()) {
+			task.markCompleted();
+			++changed;
+		}
 	}
 
-	return static_cast<int>(tasks.size());
+	return changed;
+}
+
+int TodoList::uncompleteAll() {
+	int changed = 0;
+
+	for (Task& task : tasks) {
+		if (task.isCompleted()) {
+			task.markUncompleted();
+			++changed;
+		}
+	}
+
+	return changed;
+}
+
+int TodoList::deleteAll() {
+	const int count = static_cast<int>(tasks.size());
+
+	tasks.clear();
+	renumber();
+
+	return count;
 }
 
 int TodoList::clearCompleted() {
