@@ -16,20 +16,28 @@ namespace {
 
 const char* const DATA_FILE = "data/tasks.txt";
 
-// 打印菜单
-void printMenu() {
+// 主菜单
+void printMainMenu() {
 	std::cout << "\n========== 待办事项 ==========\n";
+	std::cout << "  1. 任务管理\n";
+	std::cout << "  2. 保存\n";
+	std::cout << "  0. 退出\n";
+	std::cout << "请选择: ";
+}
+
+// 任务管理子菜单
+void printTaskMenu() {
+	std::cout << "\n--- 任务管理 ---\n";
 	std::cout << "  1. 查看全部任务\n";
 	std::cout << "  2. 添加任务\n";
 	std::cout << "  3. 标记完成\n";
-	std::cout << "  4. 删除任务\n";
-	std::cout << "  5. 修改截止日期\n";
-	std::cout << "  6. 按截止日期排序\n";
-	std::cout << "  7. 全部标记完成\n";
-	std::cout << "  8. 清空已完成\n";
-	std::cout << "  9. 立即保存\n";
-	std::cout << " 10. 取消标记\n";
-	std::cout << "  0. 退出\n";
+	std::cout << "  4. 取消标记\n";
+	std::cout << "  5. 删除任务\n";
+	std::cout << "  6. 修改截止日期\n";
+	std::cout << "  7. 按截止日期排序\n";
+	std::cout << "  8. 全部标记完成\n";
+	std::cout << "  9. 清空已完成\n";
+	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
 }
 
@@ -149,6 +157,85 @@ void updateDeadlineFlow(TodoList& list) {
 	std::cout << "已修改。\n";
 }
 
+void taskMenu(TodoList& list, bool& dirty) {
+	bool back = false;
+
+	while (!back) {
+		printTaskMenu();
+
+		int choice = -1;
+
+		if (!readInt(choice)) {
+			if (std::cin.eof()) return;
+
+			std::cout << "请输入 0-9 的数字。\n";
+			continue;
+		}
+
+		switch (choice) {
+			case 1:
+				list.showTasks();
+				break;
+
+			case 2:
+				addTaskFlow(list);
+				dirty = true;
+				break;
+
+			case 3:
+				completeTaskFlow(list);
+				dirty = true;
+				break;
+
+			case 4:
+				uncompleteTaskFlow(list);
+				dirty = true;
+				break;
+
+			case 5:
+				deleteTaskFlow(list);
+				dirty = true;
+				break;
+
+			case 6:
+				updateDeadlineFlow(list);
+				dirty = true;
+				break;
+
+			case 7:
+				list.sortByDeadline();
+				std::cout << "已按截止日期排序（无期限的排在最后）。\n";
+				list.showTasks();
+				dirty = true;
+				break;
+
+			case 8:
+				list.completeAll();
+				std::cout << "已把全部任务标记为完成。\n";
+				dirty = true;
+				break;
+
+			case 9:
+				list.clearCompleted();
+				std::cout << "已清空完成的任务。\n";
+				dirty = true;
+				break;
+
+			case 0:
+				back = true;
+				break;
+
+			default:
+				std::cout << "没有这个选项。\n";
+				break;
+		}
+
+		//有改动则自动存盘
+		if (dirty && !back) {
+			if (persist(list)) dirty = false;
+		}
+	}
+}
 }  // namespace
 
 // 程序入口：载入数据，循环处理菜单
@@ -179,7 +266,7 @@ int main() {
 	bool running = true;
 
 	while (running) {
-		printMenu();
+		printMainMenu();
 
 		int choice = -1;
 
@@ -189,64 +276,21 @@ int main() {
 				break;
 			}
 
-			std::cout << "请输入 0-10 的数字。\n";
+			std::cout << "请输入 0-2 的数字。\n";
 			continue;
 		}
 
 		switch (choice) {
 			case 1:
-				list.showTasks();
+				taskMenu(list, dirty);
+				if (std::cin.eof()) running = false;
 				break;
 
 			case 2:
-				addTaskFlow(list);
-				dirty = true;
-				break;
-
-			case 3:
-				completeTaskFlow(list);
-				dirty = true;
-				break;
-
-			case 4:
-				deleteTaskFlow(list);
-				dirty = true;
-				break;
-
-			case 5:
-				updateDeadlineFlow(list);
-				dirty = true;
-				break;
-
-			case 6:
-				list.sortByDeadline();
-				std::cout << "已按截止日期排序（无期限的排在最后）。\n";
-				list.showTasks();
-				dirty = true;
-				break;
-
-			case 7:
-				list.completeAll();
-				std::cout << "已把全部任务标记为完成。\n";
-				dirty = true;
-				break;
-
-			case 8:
-				list.clearCompleted();
-				std::cout << "已清空完成的任务。\n";
-				dirty = true;
-				break;
-
-			case 9:
 				if (persist(list)) {
 					std::cout << "已保存。\n";
 					dirty = false;
 				}
-				break;
-
-			case 10:
-				uncompleteTaskFlow(list);
-				dirty = true;
 				break;
 
 			case 0:
@@ -256,11 +300,6 @@ int main() {
 			default:
 				std::cout << "没有这个选项。\n";
 				break;
-		}
-
-		// 有改动则自动存盘
-		if (dirty && running) {
-			if (persist(list)) dirty = false;
 		}
 	}
 
