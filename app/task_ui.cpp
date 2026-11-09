@@ -18,6 +18,7 @@ void printTaskMenu() {
 	std::cout << "  7. 按截止日期排序\n";
 	std::cout << "  8. 全部标记完成\n";
 	std::cout << "  9. 清空已完成\n";
+	std::cout << " 10. 查找任务\n";
 	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
 }
@@ -107,6 +108,42 @@ void deleteTaskFlow(TodoList& list) {
 	}
 
 	std::cout << (list.deleteTask(id) ? "已删除。\n" : "没有这个 ID。\n");
+}
+
+void searchFlow(TodoList& list) {
+	Query query;
+
+	std::cout << "关键词（留空不限制）: ";
+	query.keyword = readLine();
+
+	std::cout << "分类（1 学业 / 2 生活 / 3 工作 / 4 其他，0 不限）: ";
+
+	int categoryChoice = 0;
+
+	if (!readInt(categoryChoice)) categoryChoice = 0;
+
+	if (categoryChoice >= 1 && categoryChoice <= 4) {
+		query.category = categoryName(categoryChoice);
+	}
+
+	std::cout << "状态（1 已完成 / 2 未完成，0 不限）: ";
+
+	int stateChoice = 0;
+
+	if (!readInt(stateChoice)) stateChoice = 0;
+
+	if (stateChoice == 1) query.completed = 1;
+	if (stateChoice == 2) query.completed = 0;
+
+	const std::vector<int> found = list.find(query);
+
+	if (found.empty()) {
+		std::cout << "没有匹配的任务。\n";
+		return;
+	}
+
+	std::cout << "找到 " << found.size() << " 条：\n";
+	list.showTasks(found);
 }
 
 // 修改截止日期
@@ -306,7 +343,7 @@ void taskMenu(TodoList& list, bool& dirty) {
 		if (!readInt(choice)) {
 			if (std::cin.eof()) return;
 
-			std::cout << "请输入 0-9 的数字。\n";
+			std::cout << "请输入 0-10 的数字。\n";
 			continue;
 		}
 
@@ -356,6 +393,10 @@ void taskMenu(TodoList& list, bool& dirty) {
 				list.clearCompleted();
 				std::cout << "已清空完成的任务。\n";
 				dirty = true;
+				break;
+
+			case 10:
+				searchFlow(list);
 				break;
 
 			case 0:
