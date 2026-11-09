@@ -15,6 +15,7 @@ class Task {
 	int importance;
 
    public:
+	// 构造函数：初始化全部成员
 	Task(int id, const std::string& title,
 		 const std::string& description,
 		 bool completed, const std::string& deadline,
