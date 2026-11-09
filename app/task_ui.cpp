@@ -8,6 +8,8 @@
 #include "DateUtils.h"
 #include "app_utils.h"
 
+namespace {
+
 // 任务管理子菜单
 void printTaskMenu() {
 	std::cout << "\n--- 任务管理 ---\n";
@@ -637,6 +639,7 @@ void deleteMenu(TodoList& list, int& saved) {
 		}
 	}
 }
+}  // namespace
 
 void taskMenu(TodoList& list, int& saved) {
 	bool back = false;

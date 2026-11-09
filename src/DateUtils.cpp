@@ -57,6 +57,8 @@ std::string today() {
 	const std::time_t now = std::time(nullptr);
 	const std::tm* local = std::localtime(&now);
 
+	if (!local) return "";
+
 	char buffer[11] = {0};
 	std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", local);
 
@@ -67,6 +69,8 @@ std::string today() {
 std::string now() {
 	const std::time_t current = std::time(nullptr);
 	const std::tm* local = std::localtime(&current);
+
+	if (!local) return "";
 
 	char buffer[17] = {0};
 	std::strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M", local);
