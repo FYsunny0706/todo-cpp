@@ -1,20 +1,21 @@
 #include "app_utils.h"
 
 #include <iostream>
-#include <limits>
 
-// 读一个整数，输入非法时返回 false
+// 读一个整数，空行或输入非法时返回 false
 bool readInt(int& value) {
-	if (std::cin >> value) {
-		std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-		return true;
+	const std::string line = readLine();
+
+	if (line.empty()) return false;
+
+	try {
+		std::size_t pos = 0;
+		value = std::stoi(line, &pos);
+
+		return pos == line.size();
+	} catch (...) {
+		return false;
 	}
-
-	if (std::cin.eof()) return false;
-
-	std::cin.clear();
-	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-	return false;
 }
 
 // 读一整行，允许空行

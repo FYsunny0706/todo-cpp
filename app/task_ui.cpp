@@ -44,13 +44,13 @@ void addTaskFlow(TodoList& list) {
 		return;
 	}
 
-	std::cout << "分类（1 学业 / 2 生活 / 3 工作 / 4 其他）: ";
+	std::cout << "分类（1 学业 / 2 生活 / 3 工作 / 4 其他，回车 = 其他）: ";
 
 	int categoryChoice = 4;
 
 	if (!readInt(categoryChoice)) categoryChoice = 4;
 
-	std::cout << "是否重要？（1 是 / 0 否）: ";
+	std::cout << "是否重要？（1 是 / 0 否，回车 = 否）: ";
 
 	int importance = 0;
 
@@ -235,7 +235,7 @@ void editCategoryFlow(TodoList& list) {
 		return;
 	}
 
-	std::cout << "新分类（1 学业 / 2 生活 / 3 工作 / 4 其他）: ";
+	std::cout << "新分类（1 学业 / 2 生活 / 3 工作 / 4 其他，回车 = 其他）: ";
 
 	int categoryChoice = 4;
 
@@ -260,7 +260,7 @@ void editImportanceFlow(TodoList& list) {
 		return;
 	}
 
-	std::cout << "是否重要？（1 是 / 0 否）: ";
+	std::cout << "是否重要？（1 是 / 0 否，回车 = 否）: ";
 
 	int importance = 0;
 
