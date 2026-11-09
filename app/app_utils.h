@@ -20,7 +20,5 @@ std::string categoryName(int choice);
 // 把任务保存到数据文件，成功返回 true
 bool persist(const TodoList& list);
 
-// 取今天的日期，格式 YYYY-MM-DD
-std::string today();
 
 #endif

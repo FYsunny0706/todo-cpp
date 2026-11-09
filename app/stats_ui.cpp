@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 
+#include "DateUtils.h"
 #include "app_utils.h"
 
 namespace {

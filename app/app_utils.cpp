@@ -1,7 +1,6 @@
 #include "app_utils.h"
 
 #include <iostream>
-#include <ctime>
 
 bool readInt(int& value) {
 	const std::string line = readLine();
@@ -51,14 +50,4 @@ bool persist(const TodoList& list) {
 	}
 
 	return true;
-}
-
-std::string today() {
-	std::time_t now = std::time(nullptr);
-	std::tm* local = std::localtime(&now);
-
-	char buffer[11] = {0};
-	std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", local);
-
-	return std::string(buffer);
 }
