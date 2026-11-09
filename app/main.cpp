@@ -93,11 +93,21 @@ void addTaskFlow(TodoList& list) {
 	std::cout << "标题: ";
 	const std::string title = readLine();
 
+	if (title.empty()) {
+		std::cout << "添加失败：标题不能为空。\n";
+		return;
+	}
+
 	std::cout << "描述（可留空）: ";
 	const std::string description = readLine();
 
 	std::cout << "截止日期 YYYY-MM-DD 或 YYYY-MM-DD HH:MM（可留空）: ";
 	const std::string deadline = readLine();
+
+	if (!isValidDate(deadline)) {
+		std::cout << "添加失败：截止日期必须是 YYYY-MM-DD 或 YYYY-MM-DD HH:MM，或留空。\n";
+		return;
+	}
 
 	std::cout << "分类（1 学业 / 2 生活 / 3 工作 / 4 其他）: ";
 
@@ -114,16 +124,6 @@ void addTaskFlow(TodoList& list) {
 	if (importance != 1) importance = 0;
 
 	const std::string category = categoryName(categoryChoice);
-
-	if (title.empty()) {
-		std::cout << "添加失败：标题不能为空。\n";
-		return;
-	}
-
-	if (!isValidDate(deadline)) {
-		std::cout << "添加失败：截止日期必须是 YYYY-MM-DD 或 YYYY-MM-DD HH:MM，或留空。\n";
-		return;
-	}
 
 	if (!list.addTask(title, description, deadline, category, importance)) {
 		std::cout << "添加失败。\n";
@@ -189,8 +189,13 @@ void updateDeadlineFlow(TodoList& list) {
 	std::cout << "新的截止日期 YYYY-MM-DD 或 YYYY-MM-DD HH:MM（留空表示无期限）: ";
 	const std::string deadline = readLine();
 
+	if (!isValidDate(deadline)) {
+		std::cout << "修改失败：截止日期必须是 YYYY-MM-DD 或 YYYY-MM-DD HH:MM，或留空。\n";
+		return;
+	}
+
 	if (!list.updateDeadline(id, deadline)) {
-		std::cout << "修改失败：ID 不存在，或日期不合法。\n";
+		std::cout << "修改失败：ID 不存在。\n";
 		return;
 	}
 
@@ -223,7 +228,12 @@ void editTitleFlow(TodoList& list) {
 	std::cout << "新标题: ";
 	const std::string title = readLine();
 
-	std::cout << (list.updateTitle(id, title) ? "已修改。\n" : "修改失败：ID 不存在，或标题为空。\n");
+	if (title.empty()) {
+		std::cout << "修改失败：标题不能为空。\n";
+		return;
+	}
+
+	std::cout << (list.updateTitle(id, title) ? "已修改。\n" : "修改失败：ID 不存在。\n");
 }
 
 // 修改描述
