@@ -1,6 +1,7 @@
 #include "task_ui.h"
 
 #include <iostream>
+#include <algorithm>
 #include <sstream>
 #include <string>
 
@@ -18,7 +19,7 @@ void printTaskMenu() {
 	std::cout << "  6. 修改任务\n";
 	std::cout << "  7. 按截止日期排序\n";
 	std::cout << "  8. 批量标记\n";
-	std::cout << "  9. 清空已完成\n";
+	std::cout << "  9. 批量删除\n";
 	std::cout << " 10. 查找任务\n";
 	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
@@ -426,6 +427,109 @@ void markMenu(TodoList& list, bool& dirty) {
 	}
 }
 
+// 批量删除子菜单
+void printDeleteMenu() {
+	std::cout << "\n--- 批量删除 ---\n";
+	std::cout << "  1. 按编号删除\n";
+	std::cout << "  2. 清空已完成\n";
+	std::cout << "  0. 返回\n";
+	std::cout << "请选择: ";
+}
+
+// 按编号删除多个任务
+void deleteMultipleFlow(TodoList& list) {
+	std::cout << "要删除的编号（空格分隔，例如 1 3 5）: ";
+	const std::string line = readLine();
+
+	std::istringstream input(line);
+
+	std::vector<int> ids;
+	int id = 0;
+
+	while (input >> id) {
+		ids.push_back(id);
+	}
+
+	if (ids.empty()) {
+		std::cout << "没有输入任何编号。\n";
+		return;
+	}
+
+	// 从大到小删，避免删掉后面的编号后前面的编号前移
+	std::sort(ids.begin(), ids.end());
+	std::reverse(ids.begin(), ids.end());
+
+	int ok = 0;
+	int fail = 0;
+
+	for (int target : ids) {
+		if (list.deleteTask(target)) {
+			std::cout << "编号 " << target << " 已删除。\n";
+			++ok;
+		} else {
+			std::cout << "编号 " << target << " 不存在。\n";
+			++fail;
+		}
+	}
+
+	std::cout << "处理完成：成功 " << ok << " 个，失败 " << fail << " 个。\n";
+}
+
+// 清空已完成
+void clearCompletedFlow(TodoList& list) {
+	const int changed = list.clearCompleted();
+
+	if (changed == 0) {
+		std::cout << "没有已完成的任务。\n";
+		return;
+	}
+
+	std::cout << "已删除 " << changed << " 条已完成的任务。\n";
+}
+
+// 批量删除子菜单入口
+void deleteMenu(TodoList& list, bool& dirty) {
+	bool back = false;
+
+	while (!back) {
+		printDeleteMenu();
+
+		int choice = -1;
+
+		if (!readInt(choice)) {
+			if (std::cin.eof()) return;
+
+			std::cout << "请输入 0-2 的数字。\n";
+			continue;
+		}
+
+		switch (choice) {
+			case 1:
+				deleteMultipleFlow(list);
+				dirty = true;
+				break;
+
+			case 2:
+				clearCompletedFlow(list);
+				dirty = true;
+				break;
+
+			case 0:
+				back = true;
+				break;
+
+			default:
+				std::cout << "没有这个选项。\n";
+				break;
+		}
+
+		// 有改动则自动存盘
+		if (dirty && !back) {
+			if (persist(list)) dirty = false;
+		}
+	}
+}
+
 void taskMenu(TodoList& list, bool& dirty) {
 	bool back = false;
 
@@ -482,9 +586,7 @@ void taskMenu(TodoList& list, bool& dirty) {
 				break;
 
 			case 9:
-				list.clearCompleted();
-				std::cout << "已清空完成的任务。\n";
-				dirty = true;
+				deleteMenu(list, dirty);
 				break;
 
 			case 10:
