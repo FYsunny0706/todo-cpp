@@ -257,10 +257,9 @@ void editCategoryFlow(TodoList& list) {
 
 	int categoryChoice = 4;
 
-	if (!readInt(categoryChoice)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
+	if (!readInt(categoryChoice)) categoryChoice = 4;
+
+	if (categoryChoice < 1 || categoryChoice > 4) categoryChoice = 4;
 
 	const std::string category = categoryName(categoryChoice);
 
@@ -282,10 +281,7 @@ void editImportanceFlow(TodoList& list) {
 
 	int importance = 0;
 
-	if (!readInt(importance)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
+	if (!readInt(importance)) importance = 0;
 
 	if (importance != 1) importance = 0;
 
@@ -293,7 +289,9 @@ void editImportanceFlow(TodoList& list) {
 }
 
 // 修改任务子菜单
-void editMenu(TodoList& list, bool& dirty) {
+void editMenu(TodoList& list) {
+	int saved = list.getRevision();
+
 	bool back = false;
 
 	while (!back) {
@@ -311,27 +309,22 @@ void editMenu(TodoList& list, bool& dirty) {
 		switch (choice) {
 			case 1:
 				editTitleFlow(list);
-				dirty = true;
 				break;
 
 			case 2:
 				editDescriptionFlow(list);
-				dirty = true;
 				break;
 
 			case 3:
 				updateDeadlineFlow(list);
-				dirty = true;
 				break;
 
 			case 4:
 				editCategoryFlow(list);
-				dirty = true;
 				break;
 
 			case 5:
 				editImportanceFlow(list);
-				dirty = true;
 				break;
 
 			case 0:
@@ -343,9 +336,9 @@ void editMenu(TodoList& list, bool& dirty) {
 				break;
 		}
 
-		// 有改动则自动存盘
-		if (dirty && !back) {
-			if (persist(list)) dirty = false;
+		// 数据有变动就自动存盘
+		if (list.getRevision() != saved && !back) {
+			if (persist(list)) saved = list.getRevision();
 		}
 	}
 }
@@ -400,6 +393,10 @@ void markMultipleFlow(TodoList& list) {
 		}
 	}
 
+	if (!input.eof()) {
+		std::cout << "注意：输入中含有无法识别的内容，后面的编号已被忽略。\n";
+	}
+
 	if (ok + skip + fail == 0) {
 		std::cout << "没有输入任何编号。\n";
 		return;
@@ -447,6 +444,10 @@ void unmarkMultipleFlow(TodoList& list) {
 		}
 	}
 
+	if (!input.eof()) {
+		std::cout << "注意：输入中含有无法识别的内容，后面的编号已被忽略。\n";
+	}
+
 	if (ok + skip + fail == 0) {
 		std::cout << "没有输入任何编号。\n";
 		return;
@@ -456,7 +457,9 @@ void unmarkMultipleFlow(TodoList& list) {
 }
 
 // 批量标记子菜单入口
-void markMenu(TodoList& list, bool& dirty) {
+void markMenu(TodoList& list) {
+	int saved = list.getRevision();
+
 	bool back = false;
 
 	while (!back) {
@@ -474,22 +477,18 @@ void markMenu(TodoList& list, bool& dirty) {
 		switch (choice) {
 			case 1:
 				markAllFlow(list);
-				dirty = true;
 				break;
 
 			case 2:
 				markMultipleFlow(list);
-				dirty = true;
 				break;
 
 			case 3:
 				unmarkAllFlow(list);
-				dirty = true;
 				break;
 
 			case 4:
 				unmarkMultipleFlow(list);
-				dirty = true;
 				break;
 
 			case 0:
@@ -501,9 +500,9 @@ void markMenu(TodoList& list, bool& dirty) {
 				break;
 		}
 
-		// 有改动则自动存盘
-		if (dirty && !back) {
-			if (persist(list)) dirty = false;
+		// 数据有变动就自动存盘
+		if (list.getRevision() != saved && !back) {
+			if (persist(list)) saved = list.getRevision();
 		}
 	}
 }
@@ -532,13 +531,18 @@ void deleteMultipleFlow(TodoList& list) {
 		ids.push_back(id);
 	}
 
+	if (!input.eof()) {
+		std::cout << "注意：输入中含有无法识别的内容，后面的编号已被忽略。\n";
+	}
+
 	if (ids.empty()) {
 		std::cout << "没有输入任何编号。\n";
 		return;
 	}
 
-	// 从大到小删，避免删掉后面的编号后前面的编号前移
+	// 先排序去重，再从大到小删，避免重复编号删掉别的任务
 	std::sort(ids.begin(), ids.end());
+	ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
 	std::reverse(ids.begin(), ids.end());
 
 	int ok = 0;
@@ -594,7 +598,9 @@ void deleteAllFlow(TodoList& list) {
 }
 
 // 批量删除子菜单入口
-void deleteMenu(TodoList& list, bool& dirty) {
+void deleteMenu(TodoList& list) {
+	int saved = list.getRevision();
+
 	bool back = false;
 
 	while (!back) {
@@ -612,17 +618,14 @@ void deleteMenu(TodoList& list, bool& dirty) {
 		switch (choice) {
 			case 1:
 				deleteMultipleFlow(list);
-				dirty = true;
 				break;
 
 			case 2:
 				clearCompletedFlow(list);
-				dirty = true;
 				break;
 
 			case 3:
 				deleteAllFlow(list);
-				dirty = true;
 				break;
 
 			case 0:
@@ -634,14 +637,16 @@ void deleteMenu(TodoList& list, bool& dirty) {
 				break;
 		}
 
-		// 有改动则自动存盘
-		if (dirty && !back) {
-			if (persist(list)) dirty = false;
+		// 数据有变动就自动存盘
+		if (list.getRevision() != saved && !back) {
+			if (persist(list)) saved = list.getRevision();
 		}
 	}
 }
 
-void taskMenu(TodoList& list, bool& dirty) {
+void taskMenu(TodoList& list) {
+	int saved = list.getRevision();
+
 	bool back = false;
 
 	while (!back) {
@@ -663,41 +668,36 @@ void taskMenu(TodoList& list, bool& dirty) {
 
 			case 2:
 				addTaskFlow(list);
-				dirty = true;
 				break;
 
 			case 3:
 				completeTaskFlow(list);
-				dirty = true;
 				break;
 
 			case 4:
 				uncompleteTaskFlow(list);
-				dirty = true;
 				break;
 
 			case 5:
 				deleteTaskFlow(list);
-				dirty = true;
 				break;
 
 			case 6:
-				editMenu(list, dirty);
+				editMenu(list);
 				break;
 
 			case 7:
 				list.sortByDeadline();
 				std::cout << "已按截止日期排序（无期限的排在最后）。\n";
 				list.showTasks();
-				dirty = true;
 				break;
 
 			case 8:
-				markMenu(list, dirty);
+				markMenu(list);
 				break;
 
 			case 9:
-				deleteMenu(list, dirty);
+				deleteMenu(list);
 				break;
 
 			case 10:
@@ -713,9 +713,9 @@ void taskMenu(TodoList& list, bool& dirty) {
 				break;
 		}
 
-		//有改动则自动存盘
-		if (dirty && !back) {
-			if (persist(list)) dirty = false;
+		// 数据有变动就自动存盘
+		if (list.getRevision() != saved && !back) {
+			if (persist(list)) saved = list.getRevision();
 		}
 	}
 }

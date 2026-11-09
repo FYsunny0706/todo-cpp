@@ -2,6 +2,7 @@
 //
 // 运行：在项目根目录执行 build\todo.exe（数据文件用相对路径）
 
+#include <ctime>
 #include <filesystem>
 #include <iostream>
 #include <string>
@@ -33,12 +34,18 @@ int main() {
 	SetConsoleOutputCP(CP_UTF8);
 	SetConsoleCP(CP_UTF8);
 
+	// 数据目录不存在时先建出来，避免保存失败
+	std::error_code dirError;
+	std::filesystem::create_directories(std::filesystem::path(DATA_FILE).parent_path(), dirError);
+
 	TodoList list;
 
 	if (list.loadFromFile(DATA_FILE)) {
 		std::cout << "已载入 " << DATA_FILE << "。\n";
 	} else if (std::filesystem::exists(DATA_FILE)) {
-		const std::string backup = std::string(DATA_FILE) + ".bak";
+		// 备份名带时间戳，避免覆盖旧备份
+		const std::string backup =
+			std::string(DATA_FILE) + ".bak." + std::to_string(std::time(nullptr));
 		std::error_code error;
 		std::filesystem::rename(DATA_FILE, backup, error);
 
@@ -52,7 +59,8 @@ int main() {
 		std::cout << "未找到数据文件，从空列表开始。\n";
 	}
 
-	bool dirty = false;  // 本轮是否改动过数据
+	// 已存盘的版本号，用于判断退出前是否需要再存一次
+	int saved = list.getRevision();
 	bool running = true;
 
 	while (running) {
@@ -72,7 +80,8 @@ int main() {
 
 		switch (choice) {
 			case 1:
-				taskMenu(list, dirty);
+				taskMenu(list);
+				saved = list.getRevision();
 				if (std::cin.eof()) running = false;
 				break;
 
@@ -84,17 +93,22 @@ int main() {
 			case 3:
 				if (persist(list)) {
 					std::cout << "已保存。\n";
-					dirty = false;
+					saved = list.getRevision();
 				}
 				break;
 
 			case 0:
 				running = false;
 				break;
+
+			default:
+				std::cout << "没有这个选项。\n";
+				break;
 		}
 	}
 
-	if (dirty) persist(list);
+	// 退出时仍有未保存的改动才写盘
+	if (list.getRevision() != saved) persist(list);
 
 	std::cout << "再见。\n";
 
