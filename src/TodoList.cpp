@@ -1,12 +1,10 @@
 #include "TodoList.h"
-#include "DateUtils.h"
-#include <iostream>
+
 #include <algorithm>
-#include <filesystem>
-#include <fstream>
-#include <set>
-#include <sstream>
-#include <system_error>
+#include <iostream>
+
+#include "DateUtils.h"
+#include "TaskFile.h"
 
 namespace {
 //----------自定义排序函数-----------
@@ -20,87 +18,6 @@ bool deadlineLess(const Task& a, const Task& b) {
 	if (deadlineB.empty()) return true;
 
 	return deadlineA < deadlineB;
-}
-
-// ---------- 文件字段转义 ----------
-// 存盘格式：id|title|description|completed|deadline
-// 转义单个字段中的 \、| 和换行
-std::string escapeField(const std::string& s) {
-	std::string out;
-	out.reserve(s.size() + 8);
-	for (char c : s) {
-		switch (c) {
-			case '\\':
-				out += "\\\\";
-				break;
-			case '|':
-				out += "\\|";
-				break;
-			case '\n':
-				out += "\\n";
-				break;
-			case '\r':
-				out += "\\r";
-				break;
-			default:
-				out += c;
-				break;
-		}
-	}
-	return out;
-}
-
-// 还原字段中的转义，遇到非法转义返回 false
-bool unescapeField(const std::string& s, std::string& out) {
-	out.clear();
-	out.reserve(s.size());
-	for (std::size_t i = 0; i < s.size(); ++i) {
-		if (s[i] != '\\') {
-			out += s[i];
-			continue;
-		}
-		if (i + 1 >= s.size()) return false;
-		switch (s[++i]) {
-			case '\\':
-				out += '\\';
-				break;
-			case '|':
-				out += '|';
-				break;
-			case 'n':
-				out += '\n';
-				break;
-			case 'r':
-				out += '\r';
-				break;
-			default:
-				return false;
-		}
-	}
-	return true;
-}
-
-// 按未被转义的 | 切分一行，保留转义序列
-bool splitLine(const std::string& line, std::vector<std::string>& fields, std::size_t expected) {
-	fields.clear();
-	std::string current;
-	for (std::size_t i = 0; i < line.size(); ++i) {
-		char c = line[i];
-		if (c == '\\') {
-			if (i + 1 >= line.size()) return false;
-			current += c;
-			current += line[++i];
-			continue;
-		}
-		if (c == '|') {
-			fields.push_back(current);
-			current.clear();
-			continue;
-		}
-		current += c;
-	}
-	fields.push_back(current);
-	return fields.size() == expected;
 }
 
 }  // namespace
@@ -124,6 +41,8 @@ bool TodoList::addTask(const std::string& title,
 					   int importance) {
 	if (title.empty()) return false;
 
+	if (category.empty()) return false;
+
 	if (!isValidDate(deadline)) return false;
 
 	if (importance != 0 && importance != 1) importance = 0;
@@ -138,28 +57,28 @@ bool TodoList::addTask(const std::string& title,
 }
 
 void TodoList::printTask(const Task& task) const {
-	std::cout << "------------------------" << std::endl;
+	std::cout << "------------------------" << "\n";
 
-	std::cout << "ID: " << task.getId() << std::endl;
-	std::cout << "标题: " << task.getTitle() << std::endl;
-	std::cout << "描述: " << task.getDescription() << std::endl;
+	std::cout << "ID: " << task.getId() << "\n";
+	std::cout << "标题: " << task.getTitle() << "\n";
+	std::cout << "描述: " << task.getDescription() << "\n";
 	std::cout << "分类: " << task.getCategory();
-	std::cout << "  重要: " << (task.getImportance() ? "是" : "否") << std::endl;
+	std::cout << "  重要: " << (task.getImportance() ? "是" : "否") << "\n";
 
 	std::cout << "完成状态: "
 			  << (task.isCompleted() ? "已完成" : "未完成")
-			  << std::endl;
+			  << "\n";
 
 	std::cout << "截止时间: "
 			  << (task.getDeadline().empty()
 					  ? "无"
 					  : task.getDeadline())
-			  << std::endl;
+			  << "\n";
 }
 
 void TodoList::showTasks() const {
 	if (tasks.empty()) {
-		std::cout << "当前没有待办事项。" << std::endl;
+		std::cout << "当前没有待办事项。" << "\n";
 		return;
 	}
 
@@ -167,7 +86,7 @@ void TodoList::showTasks() const {
 		printTask(task);
 	}
 
-	std::cout << "------------------------" << std::endl;
+	std::cout << "------------------------" << "\n";
 }
 
 void TodoList::showTasks(const std::vector<int>& ids) const {
@@ -180,7 +99,7 @@ void TodoList::showTasks(const std::vector<int>& ids) const {
 		}
 	}
 
-	std::cout << "------------------------" << std::endl;
+	std::cout << "------------------------" << "\n";
 }
 
 std::vector<int> TodoList::find(const Query& query) const {
@@ -219,26 +138,30 @@ std::vector<int> TodoList::find(const Query& query) const {
 	return result;
 }
 
-bool TodoList::completeTask(int id) {
+int TodoList::completeTask(int id) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
+			if (task.isCompleted()) return 0;
+
 			task.markCompleted();
-			return true;
+			return 1;
 		}
 	}
 
-	return false;
+	return -1;
 }
 
-bool TodoList::uncompleteTask(int id) {
+int TodoList::uncompleteTask(int id) {
 	for (Task& task : tasks) {
 		if (task.getId() == id) {
+			if (!task.isCompleted()) return 0;
+
 			task.markUncompleted();
-			return true;
+			return 1;
 		}
 	}
 
-	return false;
+	return -1;
 }
 
 bool TodoList::deleteTask(int id) {
@@ -374,139 +297,15 @@ int TodoList::clearCompleted() {
 }
 
 bool TodoList::saveToFile(const std::string& filename) const {
-	const std::string tempName = filename + ".tmp";
-
-	{
-		std::ofstream file(tempName);
-
-		if (!file.is_open()) return false;
-		file << "v2" << '\n';
-
-		for (const Task& task : tasks) {
-			file << task.getId() << '|'
-				 << escapeField(task.getTitle()) << '|'
-				 << escapeField(task.getDescription()) << '|'
-				 << (task.isCompleted() ? 1 : 0) << '|'
-				 << escapeField(task.getDeadline()) << '|'
-				 << escapeField(task.getCategory()) << '|'
-				 << task.getImportance() << '\n';
-
-			if (!file) return false;
-		}
-
-		file.flush();
-
-		if (!file) return false;
-	}
-
-	// 用临时文件写入，成功后再替换原文件
-	std::error_code error;
-	std::filesystem::rename(tempName, filename, error);
-
-	if (error) {
-		std::error_code ignored;
-		std::filesystem::remove(tempName, ignored);
-		return false;
-	}
-
-	return true;
+	return saveTasks(tasks, filename);
 }
 
 bool TodoList::loadFromFile(const std::string& filename) {
-	std::ifstream file(filename);
+	std::vector<Task> loaded;
 
-	if (!file.is_open()) return false;
+	if (!loadTasks(loaded, filename)) return false;
 
-	std::vector<Task> loadedTasks;
-	std::string line;
-	std::set<int> seenIds;
-
-	bool v2 = false;
-	bool firstLine = true;
-
-	while (std::getline(file, line)) {
-		while (!line.empty() && (line.back() == ' ' || line.back() == '\t' || line.back() == '\r'))
-			line.pop_back();
-
-		if (line.empty()) continue;
-
-		if (firstLine) {
-			firstLine = false;
-
-			// 去掉可能的 UTF-8 BOM
-			if (line.size() >= 3 &&
-				static_cast<unsigned char>(line[0]) == 0xEF &&
-				static_cast<unsigned char>(line[1]) == 0xBB &&
-				static_cast<unsigned char>(line[2]) == 0xBF) {
-				line.erase(0, 3);
-			}
-
-			if (line.empty()) continue;
-
-			if (line == "v2") {
-				v2 = true;
-				continue;
-			}
-		}
-
-		std::vector<std::string> fields;
-
-		if (!splitLine(line, fields, v2 ? 7 : 5)) return false;
-
-		std::string idStr;
-		std::string title;
-		std::string description;
-		std::string completedStr;
-		std::string deadline;
-		std::string category = "其他";
-		int importance = 0;
-
-		if (!unescapeField(fields[0], idStr)) return false;
-		if (!unescapeField(fields[1], title)) return false;
-		if (!unescapeField(fields[2], description)) return false;
-		if (!unescapeField(fields[3], completedStr)) return false;
-		if (!unescapeField(fields[4], deadline)) return false;
-
-		if (v2) {
-			std::string importanceStr;
-
-			if (!unescapeField(fields[5], category)) return false;
-			if (!unescapeField(fields[6], importanceStr)) return false;
-
-			if (importanceStr != "0" && importanceStr != "1") return false;
-
-			importance = (importanceStr == "1") ? 1 : 0;
-		}
-
-		int id;
-		try {
-			std::size_t pos = 0;
-			id = std::stoi(idStr, &pos);
-
-			if (pos != idStr.size() || id <= 0) return false;
-		} catch (...) {
-			return false;
-		}
-
-		if (seenIds.count(id) > 0) return false;
-		seenIds.insert(id);
-
-		if (completedStr != "0" && completedStr != "1") return false;
-
-		if (title.empty()) return false;
-
-		if (!isValidDate(deadline)) return false;
-
-		Task task(id, title, description, completedStr == "1", deadline, category, importance);
-
-		loadedTasks.push_back(task);
-	}
-
-	// 检查读取过程中是否发生错误
-	if (file.bad()) return false;
-
-	tasks = loadedTasks;
-	// 恢复下一个可用编号
+	tasks = loaded;
 	renumber();
 
 	return true;

@@ -36,7 +36,7 @@ class TodoList {
 	// 构造一个空列表
 	TodoList();
 
-	// 添加任务，成功返回 true
+	// 添加任务，标题与分类不能为空，成功返回 true
 	bool addTask(const std::string& title,
 				 const std::string& description,
 				 const std::string& deadline,
@@ -52,11 +52,11 @@ class TodoList {
 	// 只打印指定编号的任务
 	void showTasks(const std::vector<int>& ids) const;
 
-	// 按 ID 标记完成，找不到返回 false
-	bool completeTask(int id);
+	// 按 ID 标记完成：1 已改变，0 已经是完成状态，-1 编号不存在
+	int completeTask(int id);
 
-	// 按 ID 取消完成，找不到返回 false
-	bool uncompleteTask(int id);
+	// 按 ID 取消完成：1 已改变，0 本来就是未完成，-1 编号不存在
+	int uncompleteTask(int id);
 
 	// 按 ID 删除任务，找不到返回 false
 	bool deleteTask(int id);

@@ -81,7 +81,15 @@ void completeTaskFlow(TodoList& list) {
 		return;
 	}
 
-	std::cout << (list.completeTask(id) ? "已标记完成。\n" : "没有这个 ID。\n");
+	const int result = list.completeTask(id);
+
+	if (result == 1) {
+		std::cout << "已标记完成。\n";
+	} else if (result == 0) {
+		std::cout << "该任务已经是完成状态。\n";
+	} else {
+		std::cout << "没有这个 ID。\n";
+	}
 }
 
 // 取消标记
@@ -95,7 +103,15 @@ void uncompleteTaskFlow(TodoList& list) {
 		return;
 	}
 
-	std::cout << (list.uncompleteTask(id) ? "已取消完成标记。\n" : "没有这个 ID。\n");
+	const int result = list.uncompleteTask(id);
+
+	if (result == 1) {
+		std::cout << "已取消完成标记。\n";
+	} else if (result == 0) {
+		std::cout << "该任务本来就是未完成。\n";
+	} else {
+		std::cout << "没有这个 ID。\n";
+	}
 }
 
 // 删除任务
@@ -366,24 +382,30 @@ void markMultipleFlow(TodoList& list) {
 
 	int id = 0;
 	int ok = 0;
+	int skip = 0;
 	int fail = 0;
 
 	while (input >> id) {
-		if (list.completeTask(id)) {
+		const int result = list.completeTask(id);
+
+		if (result == 1) {
 			std::cout << "编号 " << id << " 已标记完成。\n";
 			++ok;
+		} else if (result == 0) {
+			std::cout << "编号 " << id << " 已经是完成状态。\n";
+			++skip;
 		} else {
 			std::cout << "编号 " << id << " 不存在。\n";
 			++fail;
 		}
 	}
 
-	if (ok + fail == 0) {
+	if (ok + skip + fail == 0) {
 		std::cout << "没有输入任何编号。\n";
 		return;
 	}
 
-	std::cout << "处理完成：成功 " << ok << " 个，失败 " << fail << " 个。\n";
+	std::cout << "处理完成：成功 " << ok << " 个，跳过 " << skip << " 个，失败 " << fail << " 个。\n";
 }
 
 // 全部取消标记
@@ -407,24 +429,30 @@ void unmarkMultipleFlow(TodoList& list) {
 
 	int id = 0;
 	int ok = 0;
+	int skip = 0;
 	int fail = 0;
 
 	while (input >> id) {
-		if (list.uncompleteTask(id)) {
+		const int result = list.uncompleteTask(id);
+
+		if (result == 1) {
 			std::cout << "编号 " << id << " 已取消标记。\n";
 			++ok;
+		} else if (result == 0) {
+			std::cout << "编号 " << id << " 本来就是未完成。\n";
+			++skip;
 		} else {
 			std::cout << "编号 " << id << " 不存在。\n";
 			++fail;
 		}
 	}
 
-	if (ok + fail == 0) {
+	if (ok + skip + fail == 0) {
 		std::cout << "没有输入任何编号。\n";
 		return;
 	}
 
-	std::cout << "处理完成：成功 " << ok << " 个，失败 " << fail << " 个。\n";
+	std::cout << "处理完成：成功 " << ok << " 个，跳过 " << skip << " 个，失败 " << fail << " 个。\n";
 }
 
 // 批量标记子菜单入口
