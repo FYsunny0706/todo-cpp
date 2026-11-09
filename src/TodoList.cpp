@@ -140,28 +140,28 @@ bool TodoList::addTask(const std::string& title,
 }
 
 void TodoList::printTask(const Task& task) const {
-	std::cout << "------------------------" << std::endl;
+	std::cout << "------------------------" << "\n";
 
-	std::cout << "ID: " << task.getId() << std::endl;
-	std::cout << "标题: " << task.getTitle() << std::endl;
-	std::cout << "描述: " << task.getDescription() << std::endl;
+	std::cout << "ID: " << task.getId() << "\n";
+	std::cout << "标题: " << task.getTitle() << "\n";
+	std::cout << "描述: " << task.getDescription() << "\n";
 	std::cout << "分类: " << task.getCategory();
-	std::cout << "  重要: " << (task.getImportance() ? "是" : "否") << std::endl;
+	std::cout << "  重要: " << (task.getImportance() ? "是" : "否") << "\n";
 
 	std::cout << "完成状态: "
 			  << (task.isCompleted() ? "已完成" : "未完成")
-			  << std::endl;
+			  << "\n";
 
 	std::cout << "截止时间: "
 			  << (task.getDeadline().empty()
 					  ? "无"
 					  : task.getDeadline())
-			  << std::endl;
+			  << "\n";
 }
 
 void TodoList::showTasks() const {
 	if (tasks.empty()) {
-		std::cout << "当前没有待办事项。" << std::endl;
+		std::cout << "当前没有待办事项。" << "\n";
 		return;
 	}
 
@@ -169,7 +169,7 @@ void TodoList::showTasks() const {
 		printTask(task);
 	}
 
-	std::cout << "------------------------" << std::endl;
+	std::cout << "------------------------" << "\n";
 }
 
 void TodoList::showTasks(const std::vector<int>& ids) const {
@@ -182,7 +182,7 @@ void TodoList::showTasks(const std::vector<int>& ids) const {
 		}
 	}
 
-	std::cout << "------------------------" << std::endl;
+	std::cout << "------------------------" << "\n";
 }
 
 std::vector<int> TodoList::find(const Query& query) const {
