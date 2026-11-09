@@ -109,7 +109,6 @@ TodoList::TodoList()
 	: nextId(1) {
 }
 
-//按当前顺序重排编号
 void TodoList::renumber() {
 	for (std::size_t i = 0; i < tasks.size(); i++) {
 		tasks[i].setId(static_cast<int>(i + 1));
@@ -138,7 +137,6 @@ bool TodoList::addTask(const std::string& title,
 	return true;
 }
 
-// 打印单条任务
 void TodoList::printTask(const Task& task) const {
 	std::cout << "------------------------" << std::endl;
 
