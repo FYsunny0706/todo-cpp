@@ -157,7 +157,7 @@ void editTitleFlow(TodoList& list, int id) {
 	}
 
 	if (!list.updateTitle(id, title)) {
-		setStatus("修改失败：ID 不存在。\n");
+		setStatus("没有这个编号。\n");
 		return;
 	}
 
@@ -175,7 +175,7 @@ void editDescriptionFlow(TodoList& list, int id) {
 	}
 
 	if (!list.updateDescription(id, description)) {
-		setStatus("修改失败：ID 不存在。\n");
+		setStatus("没有这个编号。\n");
 		return;
 	}
 
@@ -198,7 +198,7 @@ void updateDeadlineFlow(TodoList& list, int id) {
 	}
 
 	if (!list.updateDeadline(id, deadline)) {
-		setStatus("修改失败：ID 不存在。\n");
+		setStatus("没有这个编号。\n");
 		return;
 	}
 
@@ -226,7 +226,7 @@ void editCategoryFlow(TodoList& list, int id) {
 	const std::string category = categoryName(categoryChoice);
 
 	if (!list.updateCategory(id, category)) {
-		setStatus("修改失败：ID 不存在。\n");
+		setStatus("没有这个编号。\n");
 		return;
 	}
 
@@ -252,7 +252,7 @@ void editImportanceFlow(TodoList& list, int id) {
 	if (importance != 1) importance = 0;
 
 	if (!list.updateImportance(id, importance)) {
-		setStatus("修改失败：ID 不存在。\n");
+		setStatus("没有这个编号。\n");
 		return;
 	}
 
