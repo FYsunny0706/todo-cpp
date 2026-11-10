@@ -131,6 +131,10 @@ std::vector<int> TodoList::find(const Query& query) const {
 			continue;
 		}
 
+		if (!query.onDate.empty() && task.getDeadline().substr(0, 10) != query.onDate) {
+			continue;
+		}
+
 		if (query.importance != -1 && task.getImportance() != query.importance) {
 			continue;
 		}

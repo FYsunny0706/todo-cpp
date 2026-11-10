@@ -14,6 +14,7 @@
 #include "app_utils.h"
 #include "task_ui.h"
 #include "stats_ui.h"
+#include "view_ui.h"
 
 namespace {
 
@@ -22,7 +23,8 @@ void printMainMenu() {
 	std::cout << "\n========== 待办事项 ==========\n";
 	std::cout << "  1. 任务管理\n";
 	std::cout << "  2. 统计\n";
-	std::cout << "  3. 保存\n";
+	std::cout << "  3. 视图\n";
+	std::cout << "  4. 保存\n";
 	std::cout << "  0. 退出\n";
 	std::cout << "请选择: ";
 }
@@ -84,7 +86,7 @@ int main() {
 				break;
 			}
 
-			std::cout << "请输入 0-3 的数字。\n";
+			std::cout << "请输入 0-4 的数字。\n";
 			continue;
 		}
 
@@ -101,6 +103,11 @@ int main() {
 				break;
 
 			case 3:
+				viewMenu(list);
+				if(std::cin.eof()) running = false;
+				break;
+			
+			case 4:
 				if (list.getRevision() == saved) {
 					std::cout << "没有需要保存的改动。\n";
 				} else if (persist(list)) {

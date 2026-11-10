@@ -17,6 +17,8 @@ struct Query {
 	std::string before;
 	// -1 不限，0 不重要，1 重要
 	int importance = -1;
+	//截止日期正好是这一天（只比日期部分），空表示不限
+	std::string onDate;
 };
 
 // 待办事项集合：增删改查、排序与持久化
