@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "DateUtils.h"
+#include "TextWidth.h"
 #include "TaskFile.h"
 
 namespace {
@@ -93,26 +94,82 @@ void TodoList::appendTaskText(std::string& out, const Task& task) const {
 	out += '\n';
 }
 
+namespace {
+
+// 把截止日期写成人话
+std::string deadlineLabel(const std::string& deadline) {
+	if (deadline.empty()) return "无期限";
+
+	Date due;
+	Date todayDate;
+
+	if (!parseDate(deadline, due)) return deadline;
+	if (!parseDate(today(), todayDate)) return deadline;
+
+	const int diff = daysBetween(todayDate, due);
+
+	if (diff == 0) return "今天";
+	if (diff == 1) return "明天";
+	if (diff == -1) return "昨天";
+	if (diff < 0) return "已过期 " + std::to_string(-diff) + " 天";
+
+	if (diff <= 7) return std::to_string(diff) + " 天后";
+
+	if (due.year == todayDate.year) return formatDate(due).substr(5);
+
+	return formatDate(due);
+}
+
+// 表格各列宽度
+const std::size_t kStatusWidth = 4;
+const std::size_t kIdWidth = 4;
+const std::size_t kTitleWidth = 24;
+const std::size_t kCategoryWidth = 4;
+const std::size_t kDeadlineWidth = 12;
+const std::size_t kImportanceWidth = 4;
+
+// 表格的一行
+std::string tableRow(const std::string& status, const std::string& id,
+					 const std::string& title, const std::string& category,
+					 const std::string& deadline, const std::string& importance) {
+	std::string line = padRight(status, kStatusWidth) + "  " +
+					   padLeftText(id, kIdWidth) + "  " +
+					   padRight(truncateToWidth(title, kTitleWidth), kTitleWidth) + "  " +
+					   padRight(category, kCategoryWidth) + "  " +
+					   padRight(deadline, kDeadlineWidth) + "  " +
+					   padRight(importance, kImportanceWidth);
+
+	// 去掉行尾多余空格
+	while (!line.empty() && line.back() == ' ') line.pop_back();
+
+	return line + '\n';
+}
+
+// 表头与分隔线
+std::string tableHeader() {
+	std::string out;
+
+	out += tableRow("状态", "编号", "标题", "分类", "截止", "重要");
+	out += tableRow("----", "----", "------------------------", "----",
+					"------------", "----");
+
+	return out;
+}
+
+}  // namespace
+
 void TodoList::appendTaskBrief(std::string& out, const Task& task) const {
-	out += task.isCompleted() ? "[x] " : "[ ] ";
-	out += std::to_string(task.getId());
-	out += ". ";
-	out += task.getTitle();
-	out += "  (";
-	out += task.getCategory();
-	out += ", ";
-	out += (task.getDeadline().empty() ? "无期限" : task.getDeadline());
-	out += ")";
+	const std::string status = task.isCompleted() ? "[x]" : "[ ]";
 
-	if (!task.isCompleted() && isDeadlineBefore(task.getDeadline(), now())) out += "  !";
-
-	out += '\n';
+	out += tableRow(status, std::to_string(task.getId()), task.getTitle(),
+					task.getCategory(), deadlineLabel(task.getDeadline()),
+					task.getImportance() ? "是" : "否");
 }
 
 std::string TodoList::tasksBriefText() const {
 	if (tasks.empty()) return "当前没有待办事项。\n";
 
-	std::string out;
+	std::string out = tableHeader();
 
 	for (const Task& task : tasks) {
 		appendTaskBrief(out, task);
@@ -122,7 +179,9 @@ std::string TodoList::tasksBriefText() const {
 }
 
 std::string TodoList::tasksBriefText(const std::vector<int>& ids) const {
-	std::string out;
+	if (ids.empty()) return "没有匹配的任务。\n";
+
+	std::string out = tableHeader();
 
 	for (int id : ids) {
 		for (const Task& task : tasks) {

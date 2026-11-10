@@ -175,3 +175,13 @@ Date addMonths(const Date& date, int months) {
 
 	return first;
 }
+
+int daysBetween(const Date& from, const Date& to) {
+	std::tm a = toTm(from);
+	std::tm b = toTm(to);
+
+	const std::time_t ta = std::mktime(&a);
+	const std::time_t tb = std::mktime(&b);
+
+	return static_cast<int>((tb - ta + 43200) / 86400);
+}
