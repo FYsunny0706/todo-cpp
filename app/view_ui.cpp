@@ -1,6 +1,8 @@
 #include "view_ui.h"
 
 #include <iostream>
+#include <ostream>
+#include <sstream>
 #include <string>
 
 #include "DateUtils.h"
@@ -15,7 +17,7 @@ void printViewMenu() {
 	std::cout << "请选择: ";
 }
 
-//把数字右对齐到指定宽度
+// 把数字右对齐到指定宽度
 std::string padLeft(int value, std::size_t width) {
 	std::string text = std::to_string(value);
 
@@ -26,15 +28,15 @@ std::string padLeft(int value, std::size_t width) {
 	return text;
 }
 
-//未来 30 天到期柱状图
-void showDailyChart(const TodoList& list) {
+// 未来 30 天到期柱状图
+void showDailyChart(const TodoList& list, std::ostream& out) {
 	const int days = 30;
 	const int maxRows = 10;
 
 	Date todayDate;
 
 	if (!parseDate(today(), todayDate)) {
-		std::cout << "无法取得今天的日期。\n";
+		out << "无法取得今天的日期。\n";
 		return;
 	}
 
@@ -70,16 +72,16 @@ void showDailyChart(const TodoList& list) {
 		if (counts[i] > peak) peak = counts[i];
 	}
 
-	std::cout << "\n未来 " << days << " 天到期任务：共 " << total << " 条";
+	out << "\n未来 " << days << " 天到期任务：共 " << total << " 条";
 
 	if (overdue > 0) {
-		std::cout << "，另有 " << overdue << " 条已逾期";
+		out << "，另有 " << overdue << " 条已逾期";
 	}
 
-	std::cout << '\n';
+	out << '\n';
 
 	if (peak == 0) {
-		std::cout << "这段时间没有到期的任务。\n";
+		out << "这段时间没有到期的任务。\n";
 		return;
 	}
 
@@ -89,22 +91,22 @@ void showDailyChart(const TodoList& list) {
 		// 这一行代表多少个任务
 		const int need = (level * peak + rows - 1) / rows;
 
-		std::cout << padLeft(need, 3) << " |";
+		out << padLeft(need, 3) << " |";
 
 		for (int i = 0; i < days; i++) {
-			std::cout << (counts[i] >= need ? "█ " : "  ");
+			out << (counts[i] >= need ? "█ " : "  ");
 		}
 
-		std::cout << '\n';
+		out << '\n';
 	}
 
-	std::cout << "    +";
+	out << "    +";
 
 	for (int i = 0; i < days * 2; i++) {
-		std::cout << '-';
+		out << '-';
 	}
 
-	std::cout << '\n';
+	out << '\n';
 
 	// 每 5 天标一个日期
 	std::string labels(4 + days * 2, ' ');
@@ -119,7 +121,7 @@ void showDailyChart(const TodoList& list) {
 
 	while (!labels.empty() && labels.back() == ' ') labels.pop_back();
 
-	std::cout << labels << '\n';
+	out << labels << '\n';
 }
 
 }  // namespace
@@ -129,6 +131,7 @@ void viewMenu(const TodoList& list) {
 	bool back = false;
 
 	while (!back) {
+		beginFrame();
 		printViewMenu();
 
 		int choice = -1;
@@ -136,21 +139,24 @@ void viewMenu(const TodoList& list) {
 		if (!readInt(choice)) {
 			if (std::cin.eof()) return;
 
-			std::cout << "请输入 0-1 的数字。\n";
+			setStatus("请输入 0-1 的数字。\n");
 			continue;
 		}
 
 		switch (choice) {
-			case 1:
-				showDailyChart(list);
+			case 1: {
+				std::ostringstream buffer;
+				showDailyChart(list, buffer);
+				setStatus(buffer.str());
 				break;
+			}
 
 			case 0:
 				back = true;
 				break;
 
 			default:
-				std::cout << "没有这个选项。\n";
+				setStatus("没有这个选项。\n");
 				break;
 		}
 	}

@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <windows.h>
+
 namespace {
 
 // 解析一行整数，允许前导与尾随空白
@@ -79,4 +81,38 @@ bool persist(const TodoList& list) {
 	}
 
 	return true;
+}
+
+namespace {
+
+// 上一次操作的提示，画界面时会重新显示
+std::string lastStatus;
+
+}  // namespace
+
+void clearScreen() {
+	HANDLE out = GetStdHandle(STD_OUTPUT_HANDLE);
+	CONSOLE_SCREEN_BUFFER_INFO info;
+
+	if (!GetConsoleScreenBufferInfo(out, &info)) return;
+
+	DWORD written = 0;
+	const DWORD cells = static_cast<DWORD>(info.dwSize.X) * static_cast<DWORD>(info.dwSize.Y);
+	const COORD home = {0, 0};
+
+	FillConsoleOutputCharacterA(out, ' ', cells, home, &written);
+	FillConsoleOutputAttribute(out, info.wAttributes, cells, home, &written);
+	SetConsoleCursorPosition(out, home);
+}
+
+void setStatus(const std::string& text) {
+	lastStatus = text;
+}
+
+void beginFrame() {
+	clearScreen();
+
+	if (!lastStatus.empty()) {
+		std::cout << lastStatus;
+	}
 }
