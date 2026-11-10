@@ -150,7 +150,7 @@ void searchFlow(TodoList& list) {
 		return;
 	}
 
-	setStatus("找到 " + std::to_string(found.size()) + " 条：\n" + list.tasksText(found));
+	showFullScreen("找到 " + std::to_string(found.size()) + " 条：\n\n" + list.tasksBriefText(found));
 }
 
 // 修改任务子菜单
@@ -706,7 +706,7 @@ void taskMenu(TodoList& list, int& saved) {
 
 		switch (choice) {
 			case 1:
-				setStatus(list.tasksText());
+				showFullScreen(list.tasksBriefText());
 				break;
 
 			case 2:
@@ -719,9 +719,9 @@ void taskMenu(TodoList& list, int& saved) {
 
 			case 4:
 				if (list.sortByDeadline()) {
-					setStatus("已按截止日期排序（无期限的排在最后）。\n" + list.tasksText());
+					showFullScreen("已按截止日期排序（无期限的排在最后）。\n\n" + list.tasksBriefText());
 				} else {
-					setStatus("顺序没有变化。\n" + list.tasksText());
+					showFullScreen("顺序没有变化。\n\n" + list.tasksBriefText());
 				}
 				break;
 

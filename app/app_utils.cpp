@@ -1,6 +1,8 @@
 #include "app_utils.h"
 
 #include <iostream>
+#include <string>
+#include <vector>
 
 #include <windows.h>
 
@@ -114,5 +116,70 @@ void beginFrame() {
 
 	if (!lastStatus.empty()) {
 		std::cout << lastStatus;
+	}
+}
+
+
+namespace {
+
+// 把文本按行拆开
+std::vector<std::string> splitLines(const std::string& text) {
+	std::vector<std::string> lines;
+	std::string current;
+
+	for (char c : text) {
+		if (c == '\n') {
+			lines.push_back(current);
+			current.clear();
+		} else {
+			current += c;
+		}
+	}
+
+	if (!current.empty()) lines.push_back(current);
+
+	return lines;
+}
+
+}  // namespace
+
+void showFullScreen(const std::string& text) {
+	const std::vector<std::string> lines = splitLines(text);
+	const std::size_t pageSize = 20;
+	const std::size_t pageCount = (lines.size() + pageSize - 1) / pageSize;
+
+	setStatus("");
+
+	std::size_t page = 0;
+
+	while (true) {
+		clearScreen();
+
+		const std::size_t start = page * pageSize;
+
+		for (std::size_t i = start; i < lines.size() && i < start + pageSize; i++) {
+			std::cout << lines[i] << '\n';
+		}
+
+		if (pageCount <= 1) {
+			std::cout << "\n按回车返回…";
+			std::cout.flush();
+
+			readLine();
+
+			return;
+		}
+
+		std::cout << "\n第 " << (page + 1) << "/" << pageCount
+				  << " 页  （1 下一页 / 2 上一页 / 0 返回）: ";
+		std::cout.flush();
+
+		const std::string answer = readLine();
+
+		if (std::cin.eof()) return;
+
+		if (answer == "0") return;
+		if (answer == "1" && page + 1 < pageCount) ++page;
+		if (answer == "2" && page > 0) --page;
 	}
 }

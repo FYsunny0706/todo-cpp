@@ -93,6 +93,49 @@ void TodoList::appendTaskText(std::string& out, const Task& task) const {
 	out += '\n';
 }
 
+void TodoList::appendTaskBrief(std::string& out, const Task& task) const {
+	out += task.isCompleted() ? "[x] " : "[ ] ";
+	out += std::to_string(task.getId());
+	out += ". ";
+	out += task.getTitle();
+	out += "  (";
+	out += task.getCategory();
+	out += ", ";
+	out += (task.getDeadline().empty() ? "无期限" : task.getDeadline());
+	out += ")";
+
+	if (!task.isCompleted() && isDeadlineBefore(task.getDeadline(), now())) out += "  !";
+
+	out += '\n';
+}
+
+std::string TodoList::tasksBriefText() const {
+	if (tasks.empty()) return "当前没有待办事项。\n";
+
+	std::string out;
+
+	for (const Task& task : tasks) {
+		appendTaskBrief(out, task);
+	}
+
+	return out;
+}
+
+std::string TodoList::tasksBriefText(const std::vector<int>& ids) const {
+	std::string out;
+
+	for (int id : ids) {
+		for (const Task& task : tasks) {
+			if (task.getId() == id) {
+				appendTaskBrief(out, task);
+				break;
+			}
+		}
+	}
+
+	return out;
+}
+
 std::string TodoList::tasksText() const {
 	if (tasks.empty()) return "当前没有待办事项。\n";
 

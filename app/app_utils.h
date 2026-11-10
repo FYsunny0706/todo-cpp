@@ -38,4 +38,7 @@ void setStatus(const std::string& text);
 // 画界面前调用：清屏并重显上一次的操作结果
 void beginFrame();
 
+// 全屏分页显示一段较长的文本，看完后返回
+void showFullScreen(const std::string& text);
+
 #endif
