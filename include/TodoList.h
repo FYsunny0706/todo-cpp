@@ -40,6 +40,9 @@ class TodoList {
 	// 把一条任务追加到文本
 	void appendTaskText(std::string& out, const Task& task) const;
 
+	// 把一条任务追加为紧凑的一行
+	void appendTaskBrief(std::string& out, const Task& task) const;
+
    public:
 	// 构造一个空列表
 	TodoList();
@@ -65,6 +68,12 @@ class TodoList {
 
 	// 指定编号的任务文本，找不到返回空串
 	std::string taskText(int id) const;
+
+	// 全部任务的紧凑文本，一行一条
+	std::string tasksBriefText() const;
+
+	// 指定编号任务的紧凑文本
+	std::string tasksBriefText(const std::vector<int>& ids) const;
 
 	// 按 ID 标记完成：1 已改变，0 已经是完成状态，-1 编号不存在
 	int completeTask(int id);

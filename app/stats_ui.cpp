@@ -55,7 +55,7 @@ void showOverdue(const TodoList& list, std::ostream& out) {
 	}
 
 	out << "逾期 " << overdue.size() << " 条：\n";
-	out << list.tasksText(overdue);
+	out << list.tasksBriefText(overdue);
 }
 
 // 分类分布
@@ -137,9 +137,12 @@ void statsMenu(TodoList& list) {
 				setStatus(capture(showCompletion, list));
 				break;
 
-			case 2:
-				setStatus(capture(showOverdue, list));
+			case 2: {
+				std::ostringstream buffer;
+				showOverdue(list, buffer);
+				showFullScreen(buffer.str());
 				break;
+			}
 
 			case 3:
 				setStatus(capture(showCategoryDistribution, list));
