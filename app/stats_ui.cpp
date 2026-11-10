@@ -1,6 +1,8 @@
 #include "stats_ui.h"
 
 #include <iostream>
+#include <ostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -22,7 +24,7 @@ void printStatsMenu() {
 }
 
 // 完成率
-void showCompletion(const TodoList& list) {
+void showCompletion(const TodoList& list, std::ostream& out) {
 	Query all;
 	const int total = static_cast<int>(list.find(all).size());
 
@@ -30,17 +32,17 @@ void showCompletion(const TodoList& list) {
 	doneQuery.completed = 1;
 	const int done = static_cast<int>(list.find(doneQuery).size());
 
-	std::cout << "总任务数: " << total << '\n';
-	std::cout << "已完成:   " << done << '\n';
-	std::cout << "未完成:   " << (total - done) << '\n';
+	out << "总任务数: " << total << '\n';
+	out << "已完成:   " << done << '\n';
+	out << "未完成:   " << (total - done) << '\n';
 
 	const double percent = (total == 0) ? 0.0 : (100.0 * done / total);
 
-	std::cout << "完成率:   " << progressBar(percent, 20) << ' ' << formatPercent(percent) << '\n';
+	out << "完成率:   " << progressBar(percent, 20) << ' ' << formatPercent(percent) << '\n';
 }
 
 // 逾期任务
-void showOverdue(const TodoList& list) {
+void showOverdue(const TodoList& list, std::ostream& out) {
 	Query query;
 	query.before = now();
 	query.completed = 0;
@@ -48,16 +50,16 @@ void showOverdue(const TodoList& list) {
 	const std::vector<int> overdue = list.find(query);
 
 	if (overdue.empty()) {
-		std::cout << "没有逾期任务。\n";
+		out << "没有逾期任务。\n";
 		return;
 	}
 
-	std::cout << "逾期 " << overdue.size() << " 条：\n";
-	list.showTasks(overdue);
+	out << "逾期 " << overdue.size() << " 条：\n";
+	out << list.tasksText(overdue);
 }
 
 // 分类分布
-void showCategoryDistribution(const TodoList& list) {
+void showCategoryDistribution(const TodoList& list, std::ostream& out) {
 	const char* categories[] = {"学业", "生活", "工作", "其他"};
 
 	int counts[4] = {0, 0, 0, 0};
@@ -71,23 +73,23 @@ void showCategoryDistribution(const TodoList& list) {
 		total += counts[i];
 	}
 
-	std::cout << "分类分布：\n";
+	out << "分类分布：\n";
 
 	for (int i = 0; i < 4; i++) {
-		std::cout << "  " << categories[i] << "  " << counts[i] << "  ";
+		out << "  " << categories[i] << "  " << counts[i] << "  ";
 
 		const int width = (total == 0) ? 0 : counts[i] * 20 / total;
 
 		for (int j = 0; j < width; j++) {
-			std::cout << "█";
+			out << "█";
 		}
 
-		std::cout << '\n';
+		out << '\n';
 	}
 }
 
 // 重要任务分布
-void showImportanceDistribution(const TodoList& list) {
+void showImportanceDistribution(const TodoList& list, std::ostream& out) {
 	Query important;
 	important.importance = 1;
 
@@ -98,8 +100,17 @@ void showImportanceDistribution(const TodoList& list) {
 
 	const double percent = (total == 0) ? 0.0 : (100.0 * yes / total);
 
-	std::cout << "重要任务: " << yes << " / " << total << '\n';
-	std::cout << "占比:     " << progressBar(percent, 20) << ' ' << formatPercent(percent) << '\n';
+	out << "重要任务: " << yes << " / " << total << '\n';
+	out << "占比:     " << progressBar(percent, 20) << ' ' << formatPercent(percent) << '\n';
+}
+
+// 把统计结果转成一段文本
+std::string capture(void (*draw)(const TodoList&, std::ostream&), const TodoList& list) {
+	std::ostringstream buffer;
+
+	draw(list, buffer);
+
+	return buffer.str();
 }
 
 }  // namespace
@@ -109,6 +120,7 @@ void statsMenu(TodoList& list) {
 	bool back = false;
 
 	while (!back) {
+		beginFrame();
 		printStatsMenu();
 
 		int choice = -1;
@@ -116,25 +128,25 @@ void statsMenu(TodoList& list) {
 		if (!readInt(choice)) {
 			if (std::cin.eof()) return;
 
-			std::cout << "请输入 0-4 的数字。\n";
+			setStatus("请输入 0-4 的数字。\n");
 			continue;
 		}
 
 		switch (choice) {
 			case 1:
-				showCompletion(list);
+				setStatus(capture(showCompletion, list));
 				break;
 
 			case 2:
-				showOverdue(list);
+				setStatus(capture(showOverdue, list));
 				break;
 
 			case 3:
-				showCategoryDistribution(list);
+				setStatus(capture(showCategoryDistribution, list));
 				break;
 
 			case 4:
-				showImportanceDistribution(list);
+				setStatus(capture(showImportanceDistribution, list));
 				break;
 
 			case 0:
@@ -142,7 +154,7 @@ void statsMenu(TodoList& list) {
 				break;
 
 			default:
-				std::cout << "没有这个选项。\n";
+				setStatus("没有这个选项。\n");
 				break;
 		}
 	}
