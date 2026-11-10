@@ -17,8 +17,8 @@ void printTaskMenu() {
 	std::cout << "  2. 添加任务\n";
 	std::cout << "  3. 修改任务\n";
 	std::cout << "  4. 按截止日期排序\n";
-	std::cout << "  5. 标记\n";
-	std::cout << "  6. 删除\n";
+	std::cout << "  5. 标记任务与取消标记\n";
+	std::cout << "  6. 删除任务\n";
 	std::cout << "  7. 查找任务\n";
 	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
@@ -105,33 +105,6 @@ void searchFlow(TodoList& list) {
 	list.showTasks(found);
 }
 
-// 修改截止日期
-void updateDeadlineFlow(TodoList& list) {
-	std::cout << "任务 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
-	std::cout << "新的截止日期 YYYY-MM-DD 或 YYYY-MM-DD HH:MM（留空表示无期限）: ";
-	const std::string deadline = readLine();
-
-	if (!isValidDate(deadline)) {
-		std::cout << "修改失败：截止日期必须是 YYYY-MM-DD 或 YYYY-MM-DD HH:MM，或留空。\n";
-		return;
-	}
-
-	if (!list.updateDeadline(id, deadline)) {
-		std::cout << "修改失败：ID 不存在。\n";
-		return;
-	}
-
-	std::cout << "已修改。\n";
-}
-
 // 修改任务子菜单
 void printEditMenu() {
 	std::cout << "\n--- 修改任务 ---\n";
@@ -145,16 +118,7 @@ void printEditMenu() {
 }
 
 // 修改标题
-void editTitleFlow(TodoList& list) {
-	std::cout << "任务 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
+void editTitleFlow(TodoList& list, int id) {
 	std::cout << "新标题: ";
 	const std::string title = readLine();
 
@@ -163,37 +127,47 @@ void editTitleFlow(TodoList& list) {
 		return;
 	}
 
-	std::cout << (list.updateTitle(id, title) ? "已修改。\n" : "修改失败：ID 不存在。\n");
+	if (!list.updateTitle(id, title)) {
+		std::cout << "修改失败：ID 不存在。\n";
+		return;
+	}
+
+	list.showTask(id);
 }
 
 // 修改描述
-void editDescriptionFlow(TodoList& list) {
-	std::cout << "任务 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
+void editDescriptionFlow(TodoList& list, int id) {
 	std::cout << "新描述（可留空）: ";
 	const std::string description = readLine();
 
-	std::cout << (list.updateDescription(id, description) ? "已修改。\n" : "修改失败：ID 不存在。\n");
-}
-
-// 修改分类
-void editCategoryFlow(TodoList& list) {
-	std::cout << "任务 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
+	if (!list.updateDescription(id, description)) {
+		std::cout << "修改失败：ID 不存在。\n";
 		return;
 	}
 
+	list.showTask(id);
+}
+
+// 修改截止日期
+void updateDeadlineFlow(TodoList& list, int id) {
+	std::cout << "新的截止日期 YYYY-MM-DD 或 YYYY-MM-DD HH:MM（留空表示无期限）: ";
+	const std::string deadline = readLine();
+
+	if (!isValidDate(deadline)) {
+		std::cout << "修改失败：截止日期必须是 YYYY-MM-DD 或 YYYY-MM-DD HH:MM，或留空。\n";
+		return;
+	}
+
+	if (!list.updateDeadline(id, deadline)) {
+		std::cout << "修改失败：ID 不存在。\n";
+		return;
+	}
+
+	list.showTask(id);
+}
+
+// 修改分类
+void editCategoryFlow(TodoList& list, int id) {
 	std::cout << "新分类（1 学业 / 2 生活 / 3 工作 / 4 其他，回车 = 其他）: ";
 
 	int categoryChoice = 4;
@@ -204,20 +178,16 @@ void editCategoryFlow(TodoList& list) {
 
 	const std::string category = categoryName(categoryChoice);
 
-	std::cout << (list.updateCategory(id, category) ? "已修改。\n" : "修改失败：ID 不存在。\n");
-}
-
-// 修改重要度
-void editImportanceFlow(TodoList& list) {
-	std::cout << "任务 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
+	if (!list.updateCategory(id, category)) {
+		std::cout << "修改失败：ID 不存在。\n";
 		return;
 	}
 
+	list.showTask(id);
+}
+
+// 修改重要度
+void editImportanceFlow(TodoList& list, int id) {
 	std::cout << "是否重要？（1 是 / 0 否，回车 = 否）: ";
 
 	int importance = 0;
@@ -226,11 +196,30 @@ void editImportanceFlow(TodoList& list) {
 
 	if (importance != 1) importance = 0;
 
-	std::cout << (list.updateImportance(id, importance) ? "已修改。\n" : "修改失败：ID 不存在。\n");
+	if (!list.updateImportance(id, importance)) {
+		std::cout << "修改失败：ID 不存在。\n";
+		return;
+	}
+
+	list.showTask(id);
 }
 
 // 修改任务子菜单
 void editMenu(TodoList& list, int& saved) {
+	std::cout << "要修改的任务编号: ";
+
+	int id = 0;
+
+	if (!readInt(id)) {
+		std::cout << "请输入数字。\n";
+		return;
+	}
+
+	if (!list.showTask(id)) {
+		std::cout << "没有这个编号。\n";
+		return;
+	}
+
 	bool back = false;
 
 	while (!back) {
@@ -247,23 +236,23 @@ void editMenu(TodoList& list, int& saved) {
 
 		switch (choice) {
 			case 1:
-				editTitleFlow(list);
+				editTitleFlow(list, id);
 				break;
 
 			case 2:
-				editDescriptionFlow(list);
+				editDescriptionFlow(list, id);
 				break;
 
 			case 3:
-				updateDeadlineFlow(list);
+				updateDeadlineFlow(list, id);
 				break;
 
 			case 4:
-				editCategoryFlow(list);
+				editCategoryFlow(list, id);
 				break;
 
 			case 5:
-				editImportanceFlow(list);
+				editImportanceFlow(list, id);
 				break;
 
 			case 0:
