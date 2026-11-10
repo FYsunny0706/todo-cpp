@@ -40,4 +40,7 @@ Date addDays(const Date& date, int days);
 // 加减月份，日期超出当月天数时截断到月末
 Date addMonths(const Date& date, int months);
 
+// 两个日期相差多少天（to 晚于 from 为正）
+int daysBetween(const Date& from, const Date& to);
+
 #endif
