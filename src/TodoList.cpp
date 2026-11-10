@@ -109,6 +109,17 @@ void TodoList::showTasks(const std::vector<int>& ids) const {
 	std::cout << "------------------------" << "\n";
 }
 
+bool TodoList::showTask(int id) const {
+	for (const Task& task : tasks) {
+		if (task.getId() == id) {
+			printTask(task);
+			return true;
+		}
+	}
+
+	return false;
+}
+
 std::vector<int> TodoList::find(const Query& query) const {
 	std::vector<int> result;
 

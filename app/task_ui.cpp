@@ -15,14 +15,11 @@ void printTaskMenu() {
 	std::cout << "\n--- 任务管理 ---\n";
 	std::cout << "  1. 查看全部任务\n";
 	std::cout << "  2. 添加任务\n";
-	std::cout << "  3. 标记完成\n";
-	std::cout << "  4. 取消标记\n";
-	std::cout << "  5. 删除任务\n";
-	std::cout << "  6. 修改任务\n";
-	std::cout << "  7. 按截止日期排序\n";
-	std::cout << "  8. 批量标记\n";
-	std::cout << "  9. 批量删除\n";
-	std::cout << " 10. 查找任务\n";
+	std::cout << "  3. 修改任务\n";
+	std::cout << "  4. 按截止日期排序\n";
+	std::cout << "  5. 标记\n";
+	std::cout << "  6. 删除\n";
+	std::cout << "  7. 查找任务\n";
 	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
 }
@@ -70,64 +67,6 @@ void addTaskFlow(TodoList& list) {
 	}
 
 	std::cout << "已添加。\n";
-}
-
-// 标记完成
-void completeTaskFlow(TodoList& list) {
-	std::cout << "要标记完成的 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
-	const int result = list.completeTask(id);
-
-	if (result == 1) {
-		std::cout << "已标记完成。\n";
-	} else if (result == 0) {
-		std::cout << "该任务已经是完成状态。\n";
-	} else {
-		std::cout << "没有这个 ID。\n";
-	}
-}
-
-// 取消标记
-void uncompleteTaskFlow(TodoList& list) {
-	std::cout << "要取消完成标记的 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
-	const int result = list.uncompleteTask(id);
-
-	if (result == 1) {
-		std::cout << "已取消完成标记。\n";
-	} else if (result == 0) {
-		std::cout << "该任务本来就是未完成。\n";
-	} else {
-		std::cout << "没有这个 ID。\n";
-	}
-}
-
-// 删除任务
-void deleteTaskFlow(TodoList& list) {
-	std::cout << "要删除的 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
-	std::cout << (list.deleteTask(id) ? "已删除。\n" : "没有这个 ID。\n");
 }
 
 void searchFlow(TodoList& list) {
@@ -346,10 +285,10 @@ void editMenu(TodoList& list, int& saved) {
 // 批量标记子菜单
 void printMarkMenu() {
 	std::cout << "\n--- 批量标记 ---\n";
-	std::cout << "  1. 全部标记完成\n";
-	std::cout << "  2. 按编号标记完成\n";
-	std::cout << "  3. 全部取消标记\n";
-	std::cout << "  4. 按编号取消标记\n";
+	std::cout << "  1. 按编号标记完成\n";
+	std::cout << "  2. 按编号取消标记\n";
+	std::cout << "  3. 全部标记完成\n";
+	std::cout << "  4. 全部取消标记\n";
 	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
 }
@@ -474,19 +413,19 @@ void markMenu(TodoList& list, int& saved) {
 
 		switch (choice) {
 			case 1:
-				markAllFlow(list);
-				break;
-
-			case 2:
 				markMultipleFlow(list);
 				break;
 
+			case 2:
+				unmarkMultipleFlow(list);
+				break;
+
 			case 3:
-				unmarkAllFlow(list);
+				markAllFlow(list);
 				break;
 
 			case 4:
-				unmarkMultipleFlow(list);
+				unmarkAllFlow(list);
 				break;
 
 			case 0:
@@ -652,7 +591,7 @@ void taskMenu(TodoList& list, int& saved) {
 		if (!readInt(choice)) {
 			if (std::cin.eof()) return;
 
-			std::cout << "请输入 0-10 的数字。\n";
+			std::cout << "请输入 0-7 的数字。\n";
 			continue;
 		}
 
@@ -666,22 +605,10 @@ void taskMenu(TodoList& list, int& saved) {
 				break;
 
 			case 3:
-				completeTaskFlow(list);
-				break;
-
-			case 4:
-				uncompleteTaskFlow(list);
-				break;
-
-			case 5:
-				deleteTaskFlow(list);
-				break;
-
-			case 6:
 				editMenu(list, saved);
 				break;
 
-			case 7:
+			case 4:
 				if (list.sortByDeadline()) {
 					std::cout << "已按截止日期排序（无期限的排在最后）。\n";
 				} else {
@@ -691,15 +618,15 @@ void taskMenu(TodoList& list, int& saved) {
 				list.showTasks();
 				break;
 
-			case 8:
+			case 5:
 				markMenu(list, saved);
 				break;
 
-			case 9:
+			case 6:
 				deleteMenu(list, saved);
 				break;
 
-			case 10:
+			case 7:
 				searchFlow(list);
 				break;
 
