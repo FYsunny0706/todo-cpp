@@ -62,62 +62,79 @@ bool TodoList::addTask(const std::string& title,
 	return true;
 }
 
-void TodoList::printTask(const Task& task) const {
-	std::cout << "------------------------\n";
+void TodoList::appendTaskText(std::string& out, const Task& task) const {
+	out += "------------------------\n";
 
 	const bool overdue = !task.isCompleted() && isDeadlineBefore(task.getDeadline(), now());
 
-	std::cout << (task.isCompleted() ? "[x] " : "[ ] ") << task.getId() << ". " << task.getTitle() << '\n';
+	out += task.isCompleted() ? "[x] " : "[ ] ";
+	out += std::to_string(task.getId());
+	out += ". ";
+	out += task.getTitle();
+	out += '\n';
 
 	if (!task.getDescription().empty()) {
-		std::cout << "    描述: " << task.getDescription() << '\n';
+		out += "    描述: ";
+		out += task.getDescription();
+		out += '\n';
 	}
 
-	std::cout << "    分类: " << task.getCategory()
-			  << "  重要: " << (task.getImportance() ? "是" : "否") << '\n';
+	out += "    分类: ";
+	out += task.getCategory();
+	out += "  重要: ";
+	out += (task.getImportance() ? "是" : "否");
+	out += '\n';
 
-	std::cout << "    截止: " << (task.getDeadline().empty() ? "无" : task.getDeadline());
+	out += "    截止: ";
+	out += (task.getDeadline().empty() ? "无" : task.getDeadline());
 
-	if (overdue) std::cout << "  ! 已逾期";
+	if (overdue) out += "  ! 已逾期";
 
-	std::cout << '\n';
+	out += '\n';
 }
 
-void TodoList::showTasks() const {
-	if (tasks.empty()) {
-		std::cout << "当前没有待办事项。" << "\n";
-		return;
-	}
+std::string TodoList::tasksText() const {
+	if (tasks.empty()) return "当前没有待办事项。\n";
+
+	std::string out;
 
 	for (const Task& task : tasks) {
-		printTask(task);
+		appendTaskText(out, task);
 	}
 
-	std::cout << "------------------------" << "\n";
+	out += "------------------------\n";
+
+	return out;
 }
 
-void TodoList::showTasks(const std::vector<int>& ids) const {
+std::string TodoList::tasksText(const std::vector<int>& ids) const {
+	std::string out;
+
 	for (int id : ids) {
 		for (const Task& task : tasks) {
 			if (task.getId() == id) {
-				printTask(task);
+				appendTaskText(out, task);
 				break;
 			}
 		}
 	}
 
-	std::cout << "------------------------" << "\n";
+	out += "------------------------\n";
+
+	return out;
 }
 
-bool TodoList::showTask(int id) const {
+std::string TodoList::taskText(int id) const {
+	std::string out;
+
 	for (const Task& task : tasks) {
 		if (task.getId() == id) {
-			printTask(task);
-			return true;
+			appendTaskText(out, task);
+			return out;
 		}
 	}
 
-	return false;
+	return "";
 }
 
 std::vector<int> TodoList::find(const Query& query) const {

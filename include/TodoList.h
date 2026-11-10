@@ -37,8 +37,8 @@ class TodoList {
 	//按当前顺序重新编号
 	void renumber();
 
-	// 打印单条任务
-	void printTask(const Task& task) const;
+	// 把一条任务追加到文本
+	void appendTaskText(std::string& out, const Task& task) const;
 
    public:
 	// 构造一个空列表
@@ -54,17 +54,17 @@ class TodoList {
 				 const std::string& category = "其他",
 				 int importance = 0);
 
-	// 打印全部任务，空列表时输出提示
-	void showTasks() const;
+	// 全部任务的可显示文本
+	std::string tasksText() const;
 
 	// 按条件查找，返回匹配任务的编号
 	std::vector<int> find(const Query& query) const;
 
-	// 只打印指定编号的任务
-	void showTasks(const std::vector<int>& ids) const;
+	// 指定编号任务的可显示文本
+	std::string tasksText(const std::vector<int>& ids) const;
 
-	//打印指定编号的任务，找不到返回 false
-	bool showTask(int id) const;
+	// 指定编号的任务文本，找不到返回空串
+	std::string taskText(int id) const;
 
 	// 按 ID 标记完成：1 已改变，0 已经是完成状态，-1 编号不存在
 	int completeTask(int id);
