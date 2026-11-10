@@ -14,6 +14,15 @@ bool readInt(int& value);
 // 读一整行，允许空行
 std::string readLine();
 
+// 输入这个字符串表示放弃当前操作
+constexpr const char* CANCEL_INPUT = "/";
+
+// 读一行；输入 / 表示取消，返回 false
+bool readLineOrCancel(std::string& out);
+
+// 读整数；输入 / 时 canceled 置 true，格式错误时 canceled 为 false
+bool readIntOrCancel(int& value, bool& canceled);
+
 // 把分类编号转成分类名称
 std::string categoryName(int choice);
 
