@@ -10,19 +10,6 @@
 
 namespace {
 
-// 任务管理子菜单
-void printTaskMenu() {
-	std::cout << "\n--- 任务管理 ---\n";
-	std::cout << "  1. 查看全部任务\n";
-	std::cout << "  2. 添加任务\n";
-	std::cout << "  3. 修改任务\n";
-	std::cout << "  4. 按截止日期排序\n";
-	std::cout << "  5. 标记任务与取消标记\n";
-	std::cout << "  6. 删除任务\n";
-	std::cout << "  7. 查找任务\n";
-	std::cout << "  0. 返回\n";
-	std::cout << "请选择: ";
-}
 
 // 添加任务
 void addTaskFlow(TodoList& list) {
@@ -153,17 +140,6 @@ void searchFlow(TodoList& list) {
 	showFullScreen("找到 " + std::to_string(found.size()) + " 条：\n\n" + list.tasksBriefText(found));
 }
 
-// 修改任务子菜单
-void printEditMenu() {
-	std::cout << "\n--- 修改任务 ---\n";
-	std::cout << "  1. 修改标题\n";
-	std::cout << "  2. 修改描述\n";
-	std::cout << "  3. 修改截止日期\n";
-	std::cout << "  4. 修改分类\n";
-	std::cout << "  5. 修改重要度\n";
-	std::cout << "  0. 返回\n";
-	std::cout << "请选择: ";
-}
 
 // 修改标题
 void editTitleFlow(TodoList& list, int id) {
@@ -309,20 +285,18 @@ void editMenu(TodoList& list, int& saved) {
 
 	setStatus(current);
 
-	bool back = false;
+	const std::vector<std::string> items = {
+		"修改标题",
+		"修改描述",
+		"修改截止日期",
+		"修改分类",
+		"修改重要度",
+	};
 
-	while (!back) {
-		beginFrame();
-		printEditMenu();
+	while (true) {
+		const int choice = askMenu("\n--- 修改任务 ---", items);
 
-		int choice = -1;
-
-		if (!readInt(choice)) {
-			if (std::cin.eof()) return;
-
-			setStatus("请输入 0-5 的数字。\n");
-			continue;
-		}
+		if (choice <= 0) break;
 
 		switch (choice) {
 			case 1:
@@ -345,32 +319,17 @@ void editMenu(TodoList& list, int& saved) {
 				editImportanceFlow(list, id);
 				break;
 
-			case 0:
-				back = true;
-				break;
-
 			default:
-				setStatus("没有这个选项。\n");
 				break;
 		}
 
 		// 数据有变动就自动存盘
-		if (list.getRevision() != saved && !back) {
+		if (list.getRevision() != saved) {
 			if (persist(list)) saved = list.getRevision();
 		}
 	}
 }
 
-// 批量标记子菜单
-void printMarkMenu() {
-	std::cout << "\n--- 批量标记 ---\n";
-	std::cout << "  1. 按编号标记完成\n";
-	std::cout << "  2. 按编号取消标记\n";
-	std::cout << "  3. 全部标记完成\n";
-	std::cout << "  4. 全部取消标记\n";
-	std::cout << "  0. 返回\n";
-	std::cout << "请选择: ";
-}
 
 // 全部标记完成
 void markAllFlow(TodoList& list) {
@@ -494,20 +453,17 @@ void unmarkMultipleFlow(TodoList& list) {
 
 // 批量标记子菜单入口
 void markMenu(TodoList& list, int& saved) {
-	bool back = false;
+	const std::vector<std::string> items = {
+		"按编号标记完成",
+		"按编号取消标记",
+		"全部标记完成",
+		"全部取消标记",
+	};
 
-	while (!back) {
-		beginFrame();
-		printMarkMenu();
+	while (true) {
+		const int choice = askMenu("\n--- 批量标记 ---", items);
 
-		int choice = -1;
-
-		if (!readInt(choice)) {
-			if (std::cin.eof()) return;
-
-			setStatus("请输入 0-4 的数字。\n");
-			continue;
-		}
+		if (choice <= 0) break;
 
 		switch (choice) {
 			case 1:
@@ -526,31 +482,17 @@ void markMenu(TodoList& list, int& saved) {
 				unmarkAllFlow(list);
 				break;
 
-			case 0:
-				back = true;
-				break;
-
 			default:
-				setStatus("没有这个选项。\n");
 				break;
 		}
 
 		// 数据有变动就自动存盘
-		if (list.getRevision() != saved && !back) {
+		if (list.getRevision() != saved) {
 			if (persist(list)) saved = list.getRevision();
 		}
 	}
 }
 
-// 批量删除子菜单
-void printDeleteMenu() {
-	std::cout << "\n--- 批量删除 ---\n";
-	std::cout << "  1. 按编号删除\n";
-	std::cout << "  2. 清空已完成\n";
-	std::cout << "  3. 删除所有任务\n";
-	std::cout << "  0. 返回\n";
-	std::cout << "请选择: ";
-}
 
 // 按编号删除多个任务
 void deleteMultipleFlow(TodoList& list) {
@@ -643,20 +585,16 @@ void deleteAllFlow(TodoList& list) {
 
 // 批量删除子菜单入口
 void deleteMenu(TodoList& list, int& saved) {
-	bool back = false;
+	const std::vector<std::string> items = {
+		"按编号删除",
+		"清空已完成",
+		"删除所有任务",
+	};
 
-	while (!back) {
-		beginFrame();
-		printDeleteMenu();
+	while (true) {
+		const int choice = askMenu("\n--- 批量删除 ---", items);
 
-		int choice = -1;
-
-		if (!readInt(choice)) {
-			if (std::cin.eof()) return;
-
-			setStatus("请输入 0-3 的数字。\n");
-			continue;
-		}
+		if (choice <= 0) break;
 
 		switch (choice) {
 			case 1:
@@ -671,17 +609,12 @@ void deleteMenu(TodoList& list, int& saved) {
 				deleteAllFlow(list);
 				break;
 
-			case 0:
-				back = true;
-				break;
-
 			default:
-				setStatus("没有这个选项。\n");
 				break;
 		}
 
 		// 数据有变动就自动存盘
-		if (list.getRevision() != saved && !back) {
+		if (list.getRevision() != saved) {
 			if (persist(list)) saved = list.getRevision();
 		}
 	}
@@ -689,20 +622,20 @@ void deleteMenu(TodoList& list, int& saved) {
 }  // namespace
 
 void taskMenu(TodoList& list, int& saved) {
-	bool back = false;
+	const std::vector<std::string> items = {
+		"查看全部任务",
+		"添加任务",
+		"修改任务",
+		"按截止日期排序",
+		"标记任务与取消标记",
+		"删除任务",
+		"查找任务",
+	};
 
-	while (!back) {
-		beginFrame();
-		printTaskMenu();
+	while (true) {
+		const int choice = askMenu("\n--- 任务管理 ---", items);
 
-		int choice = -1;
-
-		if (!readInt(choice)) {
-			if (std::cin.eof()) return;
-
-			setStatus("请输入 0-7 的数字。\n");
-			continue;
-		}
+		if (choice <= 0) break;
 
 		switch (choice) {
 			case 1:
@@ -737,17 +670,12 @@ void taskMenu(TodoList& list, int& saved) {
 				searchFlow(list);
 				break;
 
-			case 0:
-				back = true;
-				break;
-
 			default:
-				setStatus("没有这个选项。\n");
 				break;
 		}
 
 		// 数据有变动就自动存盘
-		if (list.getRevision() != saved && !back) {
+		if (list.getRevision() != saved) {
 			if (persist(list)) saved = list.getRevision();
 		}
 	}

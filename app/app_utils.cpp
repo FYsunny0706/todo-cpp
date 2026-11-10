@@ -183,3 +183,34 @@ void showFullScreen(const std::string& text) {
 		if (answer == "2" && page > 0) --page;
 	}
 }
+
+int askMenu(const std::string& header, const std::vector<std::string>& items,
+			const char* zeroLabel) {
+	while (true) {
+		beginFrame();
+
+		std::cout << header << '\n';
+
+		for (std::size_t i = 0; i < items.size(); i++) {
+			std::cout << "  " << (i + 1) << ". " << items[i] << '\n';
+		}
+
+		std::cout << "  0. " << zeroLabel << "\n请选择: ";
+
+		int choice = -1;
+
+		if (!readInt(choice)) {
+			if (std::cin.eof()) return -1;
+
+			setStatus("请输入 0-" + std::to_string(items.size()) + " 的数字。\n");
+			continue;
+		}
+
+		if (choice < 0 || choice > static_cast<int>(items.size())) {
+			setStatus("没有这个选项。\n");
+			continue;
+		}
+
+		return choice;
+	}
+}
