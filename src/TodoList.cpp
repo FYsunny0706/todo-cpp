@@ -141,32 +141,36 @@ std::vector<int> TodoList::find(const Query& query) const {
 	return result;
 }
 
-int TodoList::completeTask(int id) {
+Task* TodoList::findTask(int id) {
 	for (Task& task : tasks) {
-		if (task.getId() == id) {
-			if (task.isCompleted()) return 0;
-
-			task.markCompleted();
-			++revision;
-			return 1;
-		}
+		if (task.getId() == id) return &task;
 	}
 
-	return -1;
+	return nullptr;
+}
+
+int TodoList::completeTask(int id) {
+	Task* task = findTask(id);
+
+	if (!task) return -1;
+	if (task->isCompleted()) return 0;
+
+	task->markCompleted();
+	++revision;
+
+	return 1;
 }
 
 int TodoList::uncompleteTask(int id) {
-	for (Task& task : tasks) {
-		if (task.getId() == id) {
-			if (!task.isCompleted()) return 0;
+	Task* task = findTask(id);
 
-			task.markUncompleted();
-			++revision;
-			return 1;
-		}
-	}
+	if (!task) return -1;
+	if (!task->isCompleted()) return 0;
 
-	return -1;
+	task->markUncompleted();
+	++revision;
+
+	return 1;
 }
 
 bool TodoList::deleteTask(int id) {
@@ -185,69 +189,64 @@ bool TodoList::deleteTask(int id) {
 bool TodoList::updateDeadline(int id, const std::string& deadline) {
 	if (!isValidDate(deadline)) return false;
 
-	for (Task& task : tasks) {
-		if (task.getId() == id) {
-			task.setDeadline(deadline);
-			++revision;
-			return true;
-		}
-	}
+	Task* task = findTask(id);
 
-	return false;
+	if (!task) return false;
+
+	task->setDeadline(deadline);
+	++revision;
+
+	return true;
 }
 
 bool TodoList::updateTitle(int id, const std::string& title) {
 	if (title.empty()) return false;
 
-	for (Task& task : tasks) {
-		if (task.getId() == id) {
-			task.setTitle(title);
-			++revision;
-			return true;
-		}
-	}
+	Task* task = findTask(id);
 
-	return false;
+	if (!task) return false;
+
+	task->setTitle(title);
+	++revision;
+
+	return true;
 }
 
 bool TodoList::updateDescription(int id, const std::string& description) {
-	for (Task& task : tasks) {
-		if (task.getId() == id) {
-			task.setDescription(description);
-			++revision;
-			return true;
-		}
-	}
+	Task* task = findTask(id);
 
-	return false;
+	if (!task) return false;
+
+	task->setDescription(description);
+	++revision;
+
+	return true;
 }
 
 bool TodoList::updateCategory(int id, const std::string& category) {
 	if (!isKnownCategory(category)) return false;
 
-	for (Task& task : tasks) {
-		if (task.getId() == id) {
-			task.setCategory(category);
-			++revision;
-			return true;
-		}
-	}
+	Task* task = findTask(id);
 
-	return false;
+	if (!task) return false;
+
+	task->setCategory(category);
+	++revision;
+
+	return true;
 }
 
 bool TodoList::updateImportance(int id, int importance) {
 	if (importance != 0 && importance != 1) return false;
 
-	for (Task& task : tasks) {
-		if (task.getId() == id) {
-			task.setImportance(importance);
-			++revision;
-			return true;
-		}
-	}
+	Task* task = findTask(id);
 
-	return false;
+	if (!task) return false;
+
+	task->setImportance(importance);
+	++revision;
+
+	return true;
 }
 
 bool TodoList::sortByDeadline() {

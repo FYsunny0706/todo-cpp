@@ -29,6 +29,9 @@ class TodoList {
 	// 数据每改动一次就加一，用于判断是否需要存盘
 	int revision = 0;
 
+	// 按编号查找任务，找不到返回 nullptr
+	Task* findTask(int id);
+
 	//按当前顺序重新编号
 	void renumber();
 
