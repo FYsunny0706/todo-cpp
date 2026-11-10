@@ -2,6 +2,7 @@
 #define APP_UTILS_H
 
 #include <string>
+#include <vector>
 
 #include "TodoList.h"
 
@@ -37,6 +38,10 @@ void setStatus(const std::string& text);
 
 // 画界面前调用：清屏并重显上一次的操作结果
 void beginFrame();
+
+// 画菜单并读一个选项：返回 1..n，0 表示最后一项，-1 表示输入结束
+int askMenu(const std::string& header, const std::vector<std::string>& items,
+            const char* zeroLabel = "返回");
 
 // 全屏分页显示一段较长的文本，看完后返回
 void showFullScreen(const std::string& text);
