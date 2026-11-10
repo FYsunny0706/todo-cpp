@@ -63,6 +63,9 @@ class TodoList {
 	// 只打印指定编号的任务
 	void showTasks(const std::vector<int>& ids) const;
 
+	//打印指定编号的任务，找不到返回 false
+	bool showTask(int id) const;
+
 	// 按 ID 标记完成：1 已改变，0 已经是完成状态，-1 编号不存在
 	int completeTask(int id);
 

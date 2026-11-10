@@ -2,19 +2,16 @@
 
 #include <iostream>
 
-bool readInt(int& value) {
-	const std::string line = readLine();
+namespace {
 
-	// 输入流出错但不是结束时清掉状态，避免主循环空转
-	if (std::cin.fail() && !std::cin.eof()) std::cin.clear();
-
+// 解析一行整数，允许前导与尾随空白
+bool parseIntLine(const std::string& line, int& value) {
 	if (line.empty()) return false;
 
 	try {
 		std::size_t pos = 0;
 		value = std::stoi(line, &pos);
 
-		// 允许数字后面带空格或制表符
 		while (pos < line.size() && (line[pos] == ' ' || line[pos] == '\t')) {
 			++pos;
 		}
@@ -23,6 +20,35 @@ bool readInt(int& value) {
 	} catch (...) {
 		return false;
 	}
+}
+
+}  // namespace
+
+bool readInt(int& value) {
+	const std::string line = readLine();
+
+	// 输入流出错但不是结束时清掉状态，避免主循环空转
+	if (std::cin.fail() && !std::cin.eof()) std::cin.clear();
+
+	return parseIntLine(line, value);
+}
+
+bool readLineOrCancel(std::string& out) {
+	out = readLine();
+
+	return out != CANCEL_INPUT;
+}
+
+bool readIntOrCancel(int& value, bool& canceled) {
+	const std::string line = readLine();
+
+	if (std::cin.fail() && !std::cin.eof()) std::cin.clear();
+
+	canceled = (line == CANCEL_INPUT);
+
+	if (canceled) return false;
+
+	return parseIntLine(line, value);
 }
 
 std::string readLine() {

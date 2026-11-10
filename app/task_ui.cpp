@@ -15,50 +15,77 @@ void printTaskMenu() {
 	std::cout << "\n--- 任务管理 ---\n";
 	std::cout << "  1. 查看全部任务\n";
 	std::cout << "  2. 添加任务\n";
-	std::cout << "  3. 标记完成\n";
-	std::cout << "  4. 取消标记\n";
-	std::cout << "  5. 删除任务\n";
-	std::cout << "  6. 修改任务\n";
-	std::cout << "  7. 按截止日期排序\n";
-	std::cout << "  8. 批量标记\n";
-	std::cout << "  9. 批量删除\n";
-	std::cout << " 10. 查找任务\n";
+	std::cout << "  3. 修改任务\n";
+	std::cout << "  4. 按截止日期排序\n";
+	std::cout << "  5. 标记任务与取消标记\n";
+	std::cout << "  6. 删除任务\n";
+	std::cout << "  7. 查找任务\n";
 	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
 }
 
 // 添加任务
 void addTaskFlow(TodoList& list) {
-	std::cout << "标题: ";
-	const std::string title = readLine();
+	std::cout << "标题（/ 取消）: ";
+	std::string title;
+
+	if (!readLineOrCancel(title)) {
+		std::cout << "已取消。\n";
+		return;
+	}
 
 	if (title.empty()) {
 		std::cout << "添加失败：标题不能为空。\n";
 		return;
 	}
 
-	std::cout << "描述（可留空）: ";
-	const std::string description = readLine();
+	std::cout << "描述（可留空，/ 取消）: ";
+	std::string description;
 
-	std::cout << "截止日期 YYYY-MM-DD 或 YYYY-MM-DD HH:MM（可留空）: ";
-	const std::string deadline = readLine();
+	if (!readLineOrCancel(description)) {
+		std::cout << "已取消。\n";
+		return;
+	}
+
+	std::cout << "截止日期 YYYY-MM-DD 或 YYYY-MM-DD HH:MM（可留空，/ 取消）: ";
+	std::string deadline;
+
+	if (!readLineOrCancel(deadline)) {
+		std::cout << "已取消。\n";
+		return;
+	}
 
 	if (!isValidDate(deadline)) {
 		std::cout << "添加失败：截止日期必须是 YYYY-MM-DD 或 YYYY-MM-DD HH:MM，或留空。\n";
 		return;
 	}
 
-	std::cout << "分类（1 学业 / 2 生活 / 3 工作 / 4 其他，回车 = 其他）: ";
+	std::cout << "分类（1 学业 / 2 生活 / 3 工作 / 4 其他，回车 = 其他，/ 取消）: ";
 
 	int categoryChoice = 4;
+	bool canceled = false;
 
-	if (!readInt(categoryChoice)) categoryChoice = 4;
+	if (!readIntOrCancel(categoryChoice, canceled)) {
+		if (canceled) {
+			std::cout << "已取消。\n";
+			return;
+		}
 
-	std::cout << "是否重要？（1 是 / 0 否，回车 = 否）: ";
+		categoryChoice = 4;
+	}
+
+	std::cout << "是否重要？（1 是 / 0 否，回车 = 否，/ 取消）: ";
 
 	int importance = 0;
 
-	if (!readInt(importance)) importance = 0;
+	if (!readIntOrCancel(importance, canceled)) {
+		if (canceled) {
+			std::cout << "已取消。\n";
+			return;
+		}
+
+		importance = 0;
+	}
 
 	if (importance != 1) importance = 0;
 
@@ -72,85 +99,46 @@ void addTaskFlow(TodoList& list) {
 	std::cout << "已添加。\n";
 }
 
-// 标记完成
-void completeTaskFlow(TodoList& list) {
-	std::cout << "要标记完成的 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
-	const int result = list.completeTask(id);
-
-	if (result == 1) {
-		std::cout << "已标记完成。\n";
-	} else if (result == 0) {
-		std::cout << "该任务已经是完成状态。\n";
-	} else {
-		std::cout << "没有这个 ID。\n";
-	}
-}
-
-// 取消标记
-void uncompleteTaskFlow(TodoList& list) {
-	std::cout << "要取消完成标记的 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
-	const int result = list.uncompleteTask(id);
-
-	if (result == 1) {
-		std::cout << "已取消完成标记。\n";
-	} else if (result == 0) {
-		std::cout << "该任务本来就是未完成。\n";
-	} else {
-		std::cout << "没有这个 ID。\n";
-	}
-}
-
-// 删除任务
-void deleteTaskFlow(TodoList& list) {
-	std::cout << "要删除的 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
-	std::cout << (list.deleteTask(id) ? "已删除。\n" : "没有这个 ID。\n");
-}
-
 void searchFlow(TodoList& list) {
 	Query query;
 
-	std::cout << "关键词（留空不限制）: ";
-	query.keyword = readLine();
+	std::cout << "关键词（留空不限制，/ 取消）: ";
 
-	std::cout << "分类（1 学业 / 2 生活 / 3 工作 / 4 其他，0 不限）: ";
+	if (!readLineOrCancel(query.keyword)) {
+		std::cout << "已取消。\n";
+		return;
+	}
+
+	std::cout << "分类（1 学业 / 2 生活 / 3 工作 / 4 其他，0 不限，/ 取消）: ";
 
 	int categoryChoice = 0;
+	bool canceled = false;
 
-	if (!readInt(categoryChoice)) categoryChoice = 0;
+	if (!readIntOrCancel(categoryChoice, canceled)) {
+		if (canceled) {
+			std::cout << "已取消。\n";
+			return;
+		}
+
+		categoryChoice = 0;
+	}
 
 	if (categoryChoice >= 1 && categoryChoice <= 4) {
 		query.category = categoryName(categoryChoice);
 	}
 
-	std::cout << "状态（1 已完成 / 2 未完成，0 不限）: ";
+	std::cout << "状态（1 已完成 / 2 未完成，0 不限，/ 取消）: ";
 
 	int stateChoice = 0;
 
-	if (!readInt(stateChoice)) stateChoice = 0;
+	if (!readIntOrCancel(stateChoice, canceled)) {
+		if (canceled) {
+			std::cout << "已取消。\n";
+			return;
+		}
+
+		stateChoice = 0;
+	}
 
 	if (stateChoice == 1) query.completed = 1;
 	if (stateChoice == 2) query.completed = 0;
@@ -166,33 +154,6 @@ void searchFlow(TodoList& list) {
 	list.showTasks(found);
 }
 
-// 修改截止日期
-void updateDeadlineFlow(TodoList& list) {
-	std::cout << "任务 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
-	std::cout << "新的截止日期 YYYY-MM-DD 或 YYYY-MM-DD HH:MM（留空表示无期限）: ";
-	const std::string deadline = readLine();
-
-	if (!isValidDate(deadline)) {
-		std::cout << "修改失败：截止日期必须是 YYYY-MM-DD 或 YYYY-MM-DD HH:MM，或留空。\n";
-		return;
-	}
-
-	if (!list.updateDeadline(id, deadline)) {
-		std::cout << "修改失败：ID 不存在。\n";
-		return;
-	}
-
-	std::cout << "已修改。\n";
-}
-
 // 修改任务子菜单
 void printEditMenu() {
 	std::cout << "\n--- 修改任务 ---\n";
@@ -206,92 +167,145 @@ void printEditMenu() {
 }
 
 // 修改标题
-void editTitleFlow(TodoList& list) {
-	std::cout << "任务 ID: ";
+void editTitleFlow(TodoList& list, int id) {
+	std::cout << "新标题（/ 取消）: ";
+	std::string title;
 
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
+	if (!readLineOrCancel(title)) {
+		std::cout << "已取消。\n";
 		return;
 	}
-
-	std::cout << "新标题: ";
-	const std::string title = readLine();
 
 	if (title.empty()) {
 		std::cout << "修改失败：标题不能为空。\n";
 		return;
 	}
 
-	std::cout << (list.updateTitle(id, title) ? "已修改。\n" : "修改失败：ID 不存在。\n");
+	if (!list.updateTitle(id, title)) {
+		std::cout << "修改失败：ID 不存在。\n";
+		return;
+	}
+
+	list.showTask(id);
 }
 
 // 修改描述
-void editDescriptionFlow(TodoList& list) {
-	std::cout << "任务 ID: ";
+void editDescriptionFlow(TodoList& list, int id) {
+	std::cout << "新描述（可留空，/ 取消）: ";
+	std::string description;
 
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
+	if (!readLineOrCancel(description)) {
+		std::cout << "已取消。\n";
 		return;
 	}
 
-	std::cout << "新描述（可留空）: ";
-	const std::string description = readLine();
+	if (!list.updateDescription(id, description)) {
+		std::cout << "修改失败：ID 不存在。\n";
+		return;
+	}
 
-	std::cout << (list.updateDescription(id, description) ? "已修改。\n" : "修改失败：ID 不存在。\n");
+	list.showTask(id);
+}
+
+// 修改截止日期
+void updateDeadlineFlow(TodoList& list, int id) {
+	std::cout << "新的截止日期 YYYY-MM-DD 或 YYYY-MM-DD HH:MM（留空表示无期限，/ 取消）: ";
+	std::string deadline;
+
+	if (!readLineOrCancel(deadline)) {
+		std::cout << "已取消。\n";
+		return;
+	}
+
+	if (!isValidDate(deadline)) {
+		std::cout << "修改失败：截止日期必须是 YYYY-MM-DD 或 YYYY-MM-DD HH:MM，或留空。\n";
+		return;
+	}
+
+	if (!list.updateDeadline(id, deadline)) {
+		std::cout << "修改失败：ID 不存在。\n";
+		return;
+	}
+
+	list.showTask(id);
 }
 
 // 修改分类
-void editCategoryFlow(TodoList& list) {
-	std::cout << "任务 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
-		return;
-	}
-
-	std::cout << "新分类（1 学业 / 2 生活 / 3 工作 / 4 其他，回车 = 其他）: ";
+void editCategoryFlow(TodoList& list, int id) {
+	std::cout << "新分类（1 学业 / 2 生活 / 3 工作 / 4 其他，回车 = 其他，/ 取消）: ";
 
 	int categoryChoice = 4;
+	bool canceled = false;
 
-	if (!readInt(categoryChoice)) categoryChoice = 4;
+	if (!readIntOrCancel(categoryChoice, canceled)) {
+		if (canceled) {
+			std::cout << "已取消。\n";
+			return;
+		}
+
+		categoryChoice = 4;
+	}
 
 	if (categoryChoice < 1 || categoryChoice > 4) categoryChoice = 4;
 
 	const std::string category = categoryName(categoryChoice);
 
-	std::cout << (list.updateCategory(id, category) ? "已修改。\n" : "修改失败：ID 不存在。\n");
-}
-
-// 修改重要度
-void editImportanceFlow(TodoList& list) {
-	std::cout << "任务 ID: ";
-
-	int id = 0;
-
-	if (!readInt(id)) {
-		std::cout << "请输入数字。\n";
+	if (!list.updateCategory(id, category)) {
+		std::cout << "修改失败：ID 不存在。\n";
 		return;
 	}
 
-	std::cout << "是否重要？（1 是 / 0 否，回车 = 否）: ";
+	list.showTask(id);
+}
+
+// 修改重要度
+void editImportanceFlow(TodoList& list, int id) {
+	std::cout << "是否重要？（1 是 / 0 否，回车 = 否，/ 取消）: ";
 
 	int importance = 0;
+	bool canceled = false;
 
-	if (!readInt(importance)) importance = 0;
+	if (!readIntOrCancel(importance, canceled)) {
+		if (canceled) {
+			std::cout << "已取消。\n";
+			return;
+		}
+
+		importance = 0;
+	}
 
 	if (importance != 1) importance = 0;
 
-	std::cout << (list.updateImportance(id, importance) ? "已修改。\n" : "修改失败：ID 不存在。\n");
+	if (!list.updateImportance(id, importance)) {
+		std::cout << "修改失败：ID 不存在。\n";
+		return;
+	}
+
+	list.showTask(id);
 }
 
 // 修改任务子菜单
 void editMenu(TodoList& list, int& saved) {
+	std::cout << "要修改的任务编号（/ 取消）: ";
+
+	int id = 0;
+	bool canceled = false;
+
+	if (!readIntOrCancel(id, canceled)) {
+		if (canceled) {
+			std::cout << "已取消。\n";
+		} else {
+			std::cout << "请输入数字。\n";
+		}
+
+		return;
+	}
+
+	if (!list.showTask(id)) {
+		std::cout << "没有这个编号。\n";
+		return;
+	}
+
 	bool back = false;
 
 	while (!back) {
@@ -308,23 +322,23 @@ void editMenu(TodoList& list, int& saved) {
 
 		switch (choice) {
 			case 1:
-				editTitleFlow(list);
+				editTitleFlow(list, id);
 				break;
 
 			case 2:
-				editDescriptionFlow(list);
+				editDescriptionFlow(list, id);
 				break;
 
 			case 3:
-				updateDeadlineFlow(list);
+				updateDeadlineFlow(list, id);
 				break;
 
 			case 4:
-				editCategoryFlow(list);
+				editCategoryFlow(list, id);
 				break;
 
 			case 5:
-				editImportanceFlow(list);
+				editImportanceFlow(list, id);
 				break;
 
 			case 0:
@@ -346,10 +360,10 @@ void editMenu(TodoList& list, int& saved) {
 // 批量标记子菜单
 void printMarkMenu() {
 	std::cout << "\n--- 批量标记 ---\n";
-	std::cout << "  1. 全部标记完成\n";
-	std::cout << "  2. 按编号标记完成\n";
-	std::cout << "  3. 全部取消标记\n";
-	std::cout << "  4. 按编号取消标记\n";
+	std::cout << "  1. 按编号标记完成\n";
+	std::cout << "  2. 按编号取消标记\n";
+	std::cout << "  3. 全部标记完成\n";
+	std::cout << "  4. 全部取消标记\n";
 	std::cout << "  0. 返回\n";
 	std::cout << "请选择: ";
 }
@@ -368,8 +382,13 @@ void markAllFlow(TodoList& list) {
 
 // 按编号标记多个任务
 void markMultipleFlow(TodoList& list) {
-	std::cout << "要标记完成的编号（空格分隔，例如 1 3 5）: ";
-	const std::string line = readLine();
+	std::cout << "要标记完成的编号（空格分隔，例如 1 3 5，/ 取消）: ";
+	std::string line;
+
+	if (!readLineOrCancel(line)) {
+		std::cout << "已取消。\n";
+		return;
+	}
 
 	std::istringstream input(line);
 
@@ -419,8 +438,13 @@ void unmarkAllFlow(TodoList& list) {
 
 // 按编号取消标记
 void unmarkMultipleFlow(TodoList& list) {
-	std::cout << "要取消标记的编号（空格分隔，例如 1 3 5）: ";
-	const std::string line = readLine();
+	std::cout << "要取消标记的编号（空格分隔，例如 1 3 5，/ 取消）: ";
+	std::string line;
+
+	if (!readLineOrCancel(line)) {
+		std::cout << "已取消。\n";
+		return;
+	}
 
 	std::istringstream input(line);
 
@@ -474,19 +498,19 @@ void markMenu(TodoList& list, int& saved) {
 
 		switch (choice) {
 			case 1:
-				markAllFlow(list);
-				break;
-
-			case 2:
 				markMultipleFlow(list);
 				break;
 
+			case 2:
+				unmarkMultipleFlow(list);
+				break;
+
 			case 3:
-				unmarkAllFlow(list);
+				markAllFlow(list);
 				break;
 
 			case 4:
-				unmarkMultipleFlow(list);
+				unmarkAllFlow(list);
 				break;
 
 			case 0:
@@ -517,8 +541,13 @@ void printDeleteMenu() {
 
 // 按编号删除多个任务
 void deleteMultipleFlow(TodoList& list) {
-	std::cout << "要删除的编号（空格分隔，例如 1 3 5）: ";
-	const std::string line = readLine();
+	std::cout << "要删除的编号（空格分隔，例如 1 3 5，/ 取消）: ";
+	std::string line;
+
+	if (!readLineOrCancel(line)) {
+		std::cout << "已取消。\n";
+		return;
+	}
 
 	std::istringstream input(line);
 
@@ -652,7 +681,7 @@ void taskMenu(TodoList& list, int& saved) {
 		if (!readInt(choice)) {
 			if (std::cin.eof()) return;
 
-			std::cout << "请输入 0-10 的数字。\n";
+			std::cout << "请输入 0-7 的数字。\n";
 			continue;
 		}
 
@@ -666,22 +695,10 @@ void taskMenu(TodoList& list, int& saved) {
 				break;
 
 			case 3:
-				completeTaskFlow(list);
-				break;
-
-			case 4:
-				uncompleteTaskFlow(list);
-				break;
-
-			case 5:
-				deleteTaskFlow(list);
-				break;
-
-			case 6:
 				editMenu(list, saved);
 				break;
 
-			case 7:
+			case 4:
 				if (list.sortByDeadline()) {
 					std::cout << "已按截止日期排序（无期限的排在最后）。\n";
 				} else {
@@ -691,15 +708,15 @@ void taskMenu(TodoList& list, int& saved) {
 				list.showTasks();
 				break;
 
-			case 8:
+			case 5:
 				markMenu(list, saved);
 				break;
 
-			case 9:
+			case 6:
 				deleteMenu(list, saved);
 				break;
 
-			case 10:
+			case 7:
 				searchFlow(list);
 				break;
 
